@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import Sidebar from "../components/chat/sidebar";
+import Sidebar from "../components/chat/Sidebar";
 import ChatHeader from "../components/chat/ChatHeader";                                        
-import MessageBubble from "../components/chat/messagebubble";
-import MessageInput from "../components/chat/messageinput";
+import MessageBubble from "../components/chat/MessageBubble";
+import MessageInput from "../components/chat/MessageInput";
 
 function Chat() {
     const [message, setMessage] = useState("");

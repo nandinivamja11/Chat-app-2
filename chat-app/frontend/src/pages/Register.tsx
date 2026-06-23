@@ -1,5 +1,5 @@
 import { useState } from "react";
-import RegisterForm from "../components/auth/registerform";
+import RegisterForm from "../components/auth/RegisterForm";
 
 function Register(){
     const [username, setUsername] = useState("");
