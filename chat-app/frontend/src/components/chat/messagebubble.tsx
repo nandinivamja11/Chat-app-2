@@ -1,32 +1,20 @@
-type MessageBubbleprops = {
-    text: string;
-    sender: string;
-    time: string;
-};
-function MessageBubble({text,sender,time}:MessageBubbleprops)
-{
-    return(
-        <div className={`flex ${sender === "me" 
-            ? "justify-end"
-            : "justify-start"
+function MessageBubble({ text, sender, time }: any) {
+  const isMe = sender === "me";
+
+  return (
+    <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+      <div
+        className={`max-w-sm px-4 py-2 rounded-2xl shadow ${
+          isMe
+            ? "bg-green-500 text-white rounded-br-md"
+            : "bg-white text-black rounded-bl-md"
         }`}
-        >
-            <div className={`max-w-xs px-4 py-2 rounded-lg ${
-                sender === "me"
-                ? "bg-blue-500 text-white"
-                : "bg-white border"
-            }`}
-            >
-            <p className={`text-xs mt-1 text-right ${
-                sender === "me"
-                ? "text-blue-100"
-                : "text-gray-500"
-            }`}
-            >
-                {time}
-            </p>
-        </div>
-        </div>
-    );
+      >
+        <p>{text}</p>
+        <p className="text-xs mt-1 opacity-70 text-right">{time}</p>
+      </div>
+    </div>
+  );
 }
+
 export default MessageBubble;

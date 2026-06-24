@@ -1,8 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 function Profile() {
-  const [name, setName] = useState("Nandani");
-  const [email, setEmail] = useState("nandani@gmail.com");
+   const navigate = useNavigate();
+  const [name, setName] = useState("Neha");
+  const [email, setEmail] = useState("neha123@gmail.com");
   const [bio, setBio] = useState("Frontend Developer");
 
   const handleSave = () => {
@@ -79,9 +81,9 @@ function Profile() {
               className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
+         
           <button
-            onClick={handleSave}
+            onClick={() => navigate("/chat")}
             className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
           >
             Save Changes

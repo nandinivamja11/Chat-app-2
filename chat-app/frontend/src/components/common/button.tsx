@@ -5,7 +5,7 @@ type buttonprops={
     className?: string;
 };
 
-function button({
+function Button({
     text, type = "button",
     onClick,
     className="",
@@ -17,4 +17,6 @@ buttonprops){
             {text}
         </button>
     );
-}   
+}
+
+export default Button;   
