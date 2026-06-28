@@ -1,9 +1,13 @@
 import { useNavigate } from "react-router-dom";
 
-function ChatHeader(){
+type ChatHeaderProps = {
+  name?: string;
+};
+
+function ChatHeader({ name }: ChatHeaderProps){
     const navigate = useNavigate();
     const user = {
-        name:"Ailce",
+        name: name || "Alice",
         status:"online",
     };
     return(
@@ -20,7 +24,6 @@ function ChatHeader(){
         <div className="flex items-center gap-4">
             <button className="text-gray-600 hover:text-blue-500">📞</button>
             <button className="text-gray-600 hover:text-blue-500">🎥</button>
-            {/* <button className="text-gray-600 hover:text-blue-500">⋮</button> */}
             <button
             onClick={() => navigate("/profile")}
             className="text-gray-600 hover:text-blue-500"

@@ -31,17 +31,30 @@ function registerForm() {
         <p className="text-gray-600 text-center mb-6">sign up to start chatting</p>
         <form onClick={handleRegister} className="space-y-4">
             <div>
-                <label className="block mb-1 font-medium">Username</label>
-                <input type="text" placeholder="enter your username" value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-2 border rounded-lg focus:online-none focus:ring-2 focus:ring-blue-500"/>
-            </div>
+            <label className="block mb-1 font-medium">
+              Username
+            </label>
+
+            <input
+              type="text"
+              placeholder="Enter username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
             <div>
-                <label className="block mb-1 font-medium">Email</label>
-                <input type="email" placeholder="enter your email" value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <label className="block mb-1 font-medium">
+            Email
+          </label>
+
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) =>setEmail(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
         </div>
 
         {/* Password */}
@@ -71,7 +84,9 @@ function registerForm() {
 
         {/* Register Button */}
         <button
-          type="submit" className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
+          type="submit" 
+          onClick={() => navigate("/")}
+          className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
           Register</button>
       </form>
 
