@@ -19,6 +19,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
+    bio: {
+      type: String,
+      default: "",
+    },
+
+    profileImage: {
+      type: String,
+      default: "",
+    },
     
     otp: {
     type: String,

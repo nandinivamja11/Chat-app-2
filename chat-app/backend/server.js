@@ -37,6 +37,7 @@ const http = require("http");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const { Server } = require("socket.io");
+const path = require("path");
 
 dotenv.config();
 
@@ -44,6 +45,7 @@ const connectDB = require("./config/db");
 
 const authRoutes = require("./routes/authRoutes");
 const chatRoutes = require("./routes/chatRoutes");
+const profileRoutes = require("./routes/profileRotes");
 
 const app = express();
 const server = http.createServer(app);
@@ -62,6 +64,9 @@ const io = new Server(server, {
 
   app.use("/api/auth", authRoutes);
   app.use("/api/chat", chatRoutes);
+  app.use("/api/profile", profileRoutes);
+  app.use("/uploads",
+  express.static(path.join(__dirname, "uploads")));
 
   // Socket.io chat
   io.on("connection", (socket) => {
