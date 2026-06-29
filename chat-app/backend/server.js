@@ -41,11 +41,12 @@ const path = require("path");
 
 dotenv.config();
 
-const connectDB = require("./config/db");
+const sequelize = require("./config/db");
 
 const authRoutes = require("./routes/authRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const profileRoutes = require("./routes/profileRotes");
+const messageRoutes = require("./routes/messageRoutes");
 
 const app = express();
 const server = http.createServer(app);
@@ -56,34 +57,55 @@ const io = new Server(server, {
   },
 });
 
+const onlineUsers = {};
+
 (async () => {
-  await connectDB();
+  try {
+    await sequelize.authenticate();
+    console.log("✅ PostgreSQL Connected");
 
-  app.use(cors());
-  app.use(express.json());
+    await sequelize.sync();
+    console.log("✅ Database Synced");
 
-  app.use("/api/auth", authRoutes);
-  app.use("/api/chat", chatRoutes);
-  app.use("/api/profile", profileRoutes);
-  app.use("/uploads",
-  express.static(path.join(__dirname, "uploads")));
+    app.use(cors());
+    app.use(express.json());
 
-  // Socket.io chat
-  io.on("connection", (socket) => {
-    console.log("User connected:", socket.id);
+    app.use("/api/auth", authRoutes);
+    app.use("/api/chat", chatRoutes);
+    app.use("/api/profile", profileRoutes);
+    app.use("/api/message", messageRoutes);
+    app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-    socket.on("send_message", (data) => {
-      io.emit("receive_message", data);
+    io.on("connection", (socket) => {
+      console.log("User Connected:", socket.id);
+
+      socket.on("join", (userId) => {
+        onlineUsers[userId] = socket.id;
+      });
+
+      socket.on("send_message", (data) => {
+        const receiverSocket = onlineUsers[data.receiver];
+        if (receiverSocket) {
+          io.to(receiverSocket).emit("receive_message", data);
+        }
+      });
+
+      socket.on("disconnect", () => {
+        for (const userId in onlineUsers) {
+          if (onlineUsers[userId] === socket.id) {
+            delete onlineUsers[userId];
+          }
+        }
+      });
     });
 
-    socket.on("disconnect", () => {
-      console.log("User disconnected");
+    const PORT = process.env.PORT || 5000;
+
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
     });
-  });
 
-  const PORT = process.env.PORT || 5000;
-
-  server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+  } catch (err) {
+    console.error("Database connection failed:", err);
+  }
 })();
