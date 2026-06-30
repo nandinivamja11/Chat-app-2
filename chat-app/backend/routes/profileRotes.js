@@ -5,7 +5,7 @@ const{
     getprofile,
     updateProfile,
 } = require("../controllers/profile.controller");
-const { models } = require("mongoose");
+// const { models } = require("mongoose");
 
 router.get("/", authMiddleware, getprofile);
 const upload = require("../middleware/upload");

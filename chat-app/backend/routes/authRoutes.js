@@ -8,5 +8,6 @@ router.post("/register", register);
 router.post("/login", login);
 router.post("/verify", verifyOTP);
 router.post("/resend-otp", resendOTP);
+router.get("/users", authMiddleware, getUsers);
 
 module.exports = router;

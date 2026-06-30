@@ -6,6 +6,6 @@ export const getMessages = async () => {
 };
 
 export const sendMessage = async (message: string) => {
-  const response = await api.post("/chat/message", { message });
+  const response = await api.post("/chat/messages", { message });
   return response.data;
 };
