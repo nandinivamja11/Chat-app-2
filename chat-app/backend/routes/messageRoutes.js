@@ -1,14 +1,3 @@
-// const express = require("express");
-// const router = express.Router();
-// const authMiddleware = require("../middleware/authMiddleware");
-// const{ sendMessage, getConversation, getMyChats, } = require("../controllers/message.controller");
-
-// router.post("/send", authMiddleware, sendMessage);
-// router.get("/", authMiddleware, getMyChats);
-// router.get("/:userId", authMiddleware, getConversation);
-
-// module.exports = router;
-
 const express = require("express");
 const router = express.Router();
 
@@ -18,12 +7,17 @@ const {
   sendMessage,
   getConversation,
   getMyChats,
-} = require("../controllers/message.controller"); // athva message.controller
+} = require("../controllers/message.controller");
 
+// ================= ROUTES =================
+
+// send message
 router.post("/send", authMiddleware, sendMessage);
 
-router.get("/", authMiddleware, getMyChats);
+// get all chats (sidebar list)
+router.get("/chats", authMiddleware, getMyChats);
 
-router.get("/:userId", authMiddleware, getConversation);
+// get conversation between TWO users (IMPORTANT FIX)
+router.get("/conversation/:userId", authMiddleware, getConversation);
 
 module.exports = router;

@@ -1,37 +1,3 @@
-// const express = require("express");
-// const http = require("http");
-// const { Server } = require("socket.io");
-// const cors = require("cors");
-// const app = express();
-// let users = [];
-
-// app.use(cors());
-// app.use(express.json());
-// const server = http.createServer(app);
-// const io = new Server(server, {
-//   cors: {
-//     origin: "http://localhost:5176",
-//     methods: ["GET", "POST"],
-//   },
-// });
-// io.on("connection", (socket) => {
-//     console.log("User Connected:", socket.id);
-
-//     socket.on("send_message", (data) => {
-//         io.emit("receive_message", data);
-//     });
-//     socket.on("disconnect", () =>{
-//         console.log("User Disconnected:", socket.id);
-//     });
-// });
-// app.get("/",(req, res) => {
-//     res.send("Backend Running 🚀");
-// });
-
-// server.listen(5000, () => {
-//     console.log("Server running on port 5000");
-// });
-
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
@@ -48,16 +14,20 @@ const chatRoutes = require("./routes/chatRoutes");
 const profileRoutes = require("./routes/profileRotes");
 const messageRoutes = require("./routes/messageRoutes");
 
+const Message = require("./models/Message");
+
 const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+    methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
-const onlineUsers = {};
+const onlineUsers = new Map();
 
 (async () => {
   try {
@@ -76,33 +46,72 @@ const onlineUsers = {};
     app.use("/api/message", messageRoutes);
     app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+    // ================= SOCKET.IO =================
     io.on("connection", (socket) => {
       console.log("User Connected:", socket.id);
 
+      // JOIN USER
       socket.on("join", (userId) => {
-        onlineUsers[userId] = socket.id;
-      });
+  if (!userId) return;
 
-      socket.on("send_message", (data) => {
-        const receiverSocket = onlineUsers[data.receiver];
-        if (receiverSocket) {
-          io.to(receiverSocket).emit("receive_message", data);
+  const id = Number(userId); // 🔥 IMPORTANT FIX
+
+  onlineUsers.set(id, socket.id);
+
+  console.log("User joined:", id);
+  console.log("Online Users:", [...onlineUsers.entries()]);
+});
+
+      // ================= SEND MESSAGE (FIXED) =================
+      socket.on("send_message", async (data) => {
+        try {
+          console.log("===== SEND MESSAGE EVENT =====");
+
+          // 🔥 1. SAVE TO DATABASE (FIXED FIELD NAME)
+          const msg = await Message.create({
+              sender: Number(data.sender),
+              receiver: Number(data.receiver),
+              message: data.text,
+         });
+         console.log("Saved Message:", msg.toJSON());
+
+          const receiverSocketId = onlineUsers.get(Number(data.receiver));
+          const senderSocketId = onlineUsers.get(Number(data.sender));
+
+          console.log("Receiver:", data.receiver, receiverSocketId);
+          console.log("Sender:", data.sender, senderSocketId);
+
+          if (receiverSocketId) {
+          io.to(receiverSocketId).emit("receive_message", msg);
+        }
+
+          if (senderSocketId) {
+          io.to(senderSocketId).emit("receive_message", msg);
+        }
+
+        } catch (error) {
+          console.log("Message save error:", error);
         }
       });
 
+      // DISCONNECT CLEANUP
       socket.on("disconnect", () => {
-        for (const userId in onlineUsers) {
-          if (onlineUsers[userId] === socket.id) {
-            delete onlineUsers[userId];
+        console.log("User Disconnected:", socket.id);
+
+        for (let [userId, socketId] of onlineUsers.entries()) {
+          if (socketId === socket.id) {
+            onlineUsers.delete(userId);
+            break;
           }
         }
       });
     });
 
+    // START SERVER
     const PORT = process.env.PORT || 5000;
 
     server.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+      console.log("Server running on port", PORT);
     });
 
   } catch (err) {

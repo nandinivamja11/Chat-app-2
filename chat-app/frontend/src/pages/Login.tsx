@@ -5,18 +5,25 @@ import { loginUser } from "../services/auth.service";
 function Login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
       const data = await loginUser(email, password);
       localStorage.setItem("token", data.token);
+      localStorage.setItem("userId", data.user.id);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("name", data.user.name || "");
+      setLoading(false);
       navigate("/chat");
     } catch (err: any) {
+      setLoading(false);
       setError(
         err?.response?.data?.message || err?.message || "Login failed. Please try again."
       );
@@ -99,8 +106,11 @@ function Login() {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full py-3 rounded-lg bg-pink-400 hover:bg-pink-300 active:scale-95 transition font-semibold shadow-lg">
-           Login</button>
+            disabled={loading}
+            className="w-full py-3 rounded-lg bg-pink-400 hover:bg-pink-300 active:scale-95 transition font-semibold shadow-lg disabled:opacity-60"
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
         </form>
 
         {/* Register */}

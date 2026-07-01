@@ -414,17 +414,32 @@ exports.resendOTP = async (req, res) => {
     });
   }
 };
+// =======================
+// Get All Users
+// =======================
 exports.getUsers = async (req, res) => {
   try {
-    const users = await User.find({
-      _id: { $ne: req.user.id },
-    }).select("-password -otp");
+    const { Op } = require("sequelize");
 
-    res.status(200).json(users);
+    const users = await User.findAll({
+      where: {
+        id: {
+          [Op.ne]: req.user.id, // Logged-in user ને exclude કરો
+        },
+      },
+      attributes: {
+        exclude: ["password", "otp"],
+      },
+      order: [["username", "ASC"]],
+    });
+
+    return res.status(200).json(users);
 
   } catch (err) {
-    res.status(500).json({
+    console.error(err);
+
+    return res.status(500).json({
       message: err.message,
     });
   }
-};
+};  
