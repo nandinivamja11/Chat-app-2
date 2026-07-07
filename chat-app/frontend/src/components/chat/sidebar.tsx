@@ -46,8 +46,7 @@ function Sidebar({
               onClick={() => setSelectedChat(chat.id)}
               className={`flex items-center p-4 cursor-pointer border-b transition hover:bg-gray-100 ${
                 selectedChat === chat.id ? "bg-blue-100" : ""
-              }`}
-            >
+              }`}>
 
               {/* Avatar */}
               <div className="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">

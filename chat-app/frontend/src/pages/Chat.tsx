@@ -12,7 +12,7 @@ type Message = {
   text: string;
   time: string;
 };
-
+     
 type Chat = {
   id: number;
   name: string;
@@ -21,41 +21,56 @@ type Chat = {
 
 function Chat() {
   const userId = Number(localStorage.getItem("userId"));
+  const storedSelectedChat = Number(localStorage.getItem("selectedChat"));
 
   // 🔥 STEP 3 FIX: real users from DB
   const [chats, setChats] = useState<Chat[]>([]);
 
-  const [selectedChat, setSelectedChat] = useState<number | null>(null);
+  const [selectedChat, setSelectedChat] = useState<number | null>(
+    Number.isNaN(storedSelectedChat) ? null : storedSelectedChat
+  );
   const [message, setMessage] = useState<string>("");
+
+  const handleSelectChat = (id: number) => {
+    setSelectedChat(id);
+    localStorage.setItem("selectedChat", String(id));
+  };
+
+  useEffect(() => {
+    if (selectedChat !== null) {
+      localStorage.setItem("selectedChat", String(selectedChat));
+    }
+  }, [selectedChat]);
 
   const currentChat = chats.find((c) => c.id === selectedChat);
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-  const loadMessages = async () => {
-    if (!selectedChat) return;
+    const loadMessages = async () => {
+      if (selectedChat === null) return;
 
-    try {
-      const res = await api.get(
-        `/message/conversation/${selectedChat}`
-      );
+      setMessages([]);
 
-      const data = res.data.map((msg: any) => ({
-        sender: msg.sender,
-        receiver: msg.receiver,
-        text: msg.message,
-        time: new Date(msg.createdAt).toLocaleTimeString(),
-      }));
+      try {
+        const res = await api.get(
+          `/message/conversation/${selectedChat}`
+        );
 
-      setMessages(data);
+        const data = res.data.map((msg: any) => ({
+          sender: msg.sender,
+          receiver: msg.receiver,
+          text: msg.message,
+          time: new Date(msg.createdAt).toLocaleTimeString(),
+        }));
 
-    } catch (err) {
-      console.log(err);
-    }
-  };
+        setMessages(data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
 
-  loadMessages();
-}, [selectedChat]);
+    loadMessages();
+  }, [selectedChat]);
 
   // ================= STEP 3: FETCH USERS =================
   useEffect(() => {
@@ -73,9 +88,13 @@ function Chat() {
         setChats(users);
 
         if (users.length > 0) {
-          setSelectedChat(users[0].id);
-        }
-      } catch (err) {
+      if (selectedChat !== null && users.some((user) => user.id === selectedChat)) {
+        setSelectedChat(selectedChat);
+      } else {
+        setSelectedChat(users[0].id);
+      }
+    }
+  } catch (err) {
         console.log("Error fetching users:", err);
       }
     };
@@ -93,15 +112,20 @@ function Chat() {
     };
 
     const handleReceive = (data: any) => {
-      const msg = {
-        sender: data.sender,
-        receiver: data.receiver,
-        text: data.message,
-        time: new Date(data.createdAt).toLocaleTimeString(),
-      };
-
-      setMessages((prev) => [...prev, msg]);
+  if (
+    (data.sender === selectedChat && data.receiver === userId) ||
+    (data.sender === userId && data.receiver === selectedChat)
+  ) {
+    const msg = {
+      sender: data.sender,
+      receiver: data.receiver,
+      text: data.text,
+      time: new Date(data.createdAt).toLocaleTimeString(),
     };
+
+    setMessages((prev) => [...prev, msg]);
+  }
+};
 
     const handleError = (error: any) => {
       console.error("Socket error:", error);
@@ -118,8 +142,8 @@ function Chat() {
       socket.off("receive_message", handleReceive);
       socket.disconnect();
     };
-  }, [userId]);
-
+  }, [userId, selectedChat]);
+  
   // ================= SEND MESSAGE =================
   const handleSend = async () => {
     if (!message.trim() || !selectedChat) return;
@@ -152,6 +176,7 @@ function Chat() {
       console.error("Message save failed:", err);
     }
 
+    localStorage.setItem("selectedChat", String(selectedChat));
     setMessage("");
   };
 
@@ -161,7 +186,7 @@ function Chat() {
       <Sidebar
         chats={chats}
         selectedChat={selectedChat || 0}
-        setSelectedChat={setSelectedChat}
+        setSelectedChat={handleSelectChat}
       />
 
       <div className="flex-1 flex flex-col">

@@ -1,36 +1,3 @@
-// const mongoose = require("mongoose");
-
-// const messageSchema = new mongoose.Schema(
-//   {
-//     sender: {
-//       type: mongoose.Schema.Types.ObjectId,
-//       ref: "User",
-//       required: true,
-//     },
-
-//     receiver: {
-//       type: mongoose.Schema.Types.ObjectId,
-//       ref: "User",
-//       required: true,
-//     },
-
-//     message: {
-//       type: String,
-//       required: true,
-//       trim: true,
-//     },
-
-//     isSeen: {
-//       type: Boolean,
-//       default: false,
-//     },
-//   },
-//   {
-//     timestamps: true,
-//   }
-// );
-
-// module.exports = mongoose.model("Message", messageSchema);
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 const User = require("./User");
@@ -78,25 +45,25 @@ const Message = sequelize.define(
   }
 );
 
-// // Associations
-// User.hasMany(Message, {
-//   foreignKey: "sender",
-//   as: "SentMessages",
-// });
+// Associations
+User.hasMany(Message, {
+  foreignKey: "sender",
+  as: "SentMessages",
+});
 
-// User.hasMany(Message, {
-//   foreignKey: "receiver",
-//   as: "ReceivedMessages",
-// });
+User.hasMany(Message, {
+  foreignKey: "receiver",
+  as: "ReceivedMessages",
+});
 
-// Message.belongsTo(User, {
-//   foreignKey: "sender",
-//   as: "Sender",
-// });
+Message.belongsTo(User, {
+  foreignKey: "sender",
+  as: "Sender",
+});
 
-// Message.belongsTo(User, {
-//   foreignKey: "receiver",
-//   as: "Receiver",
-// });
+Message.belongsTo(User, {
+  foreignKey: "receiver",
+  as: "Receiver",
+});
 
-// module.exports = Message;
+module.exports = Message;   

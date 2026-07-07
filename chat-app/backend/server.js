@@ -37,8 +37,17 @@ const onlineUsers = new Map();
     await sequelize.sync();
     console.log("✅ Database Synced");
 
-    app.use(cors());
+    app.use(
+      cors({
+        origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+        credentials: true,
+      })
+    );
     app.use(express.json());
+
+    app.get("/health", (_req, res) => {
+      res.json({ status: "ok" });
+    });
 
     app.use("/api/auth", authRoutes);
     app.use("/api/chat", chatRoutes);
@@ -63,36 +72,42 @@ const onlineUsers = new Map();
 });
 
       // ================= SEND MESSAGE (FIXED) =================
-      socket.on("send_message", async (data) => {
-        try {
-          console.log("===== SEND MESSAGE EVENT =====");
+//       socket.on("send_message", async (data) => {
+//   try {
+//     console.log("SEND MESSAGE RECEIVED:", data);
 
-          // 🔥 1. SAVE TO DATABASE (FIXED FIELD NAME)
-          const msg = await Message.create({
-              sender: Number(data.sender),
-              receiver: Number(data.receiver),
-              message: data.text,
-         });
-         console.log("Saved Message:", msg.toJSON());
+//     const payload = {
+//       sender: Number(data.sender),
+//       receiver: Number(data.receiver),
+//       text: data.text,
+//       createdAt: data.createdAt,
+//     };
 
-          const receiverSocketId = onlineUsers.get(Number(data.receiver));
-          const senderSocketId = onlineUsers.get(Number(data.sender));
+//     const receiverSocketId = onlineUsers.get(payload.receiver);
+//     const senderSocketId = onlineUsers.get(payload.sender);
 
-          console.log("Receiver:", data.receiver, receiverSocketId);
-          console.log("Sender:", data.sender, senderSocketId);
+//     if (receiverSocketId) {
+//       io.to(receiverSocketId).emit("receive_message", payload);
+//     }
 
-          if (receiverSocketId) {
-          io.to(receiverSocketId).emit("receive_message", msg);
-        }
+//     if (senderSocketId) {
+//       io.to(senderSocketId).emit("receive_message", payload);
+//     }
+//   } catch (error) {
+//     console.log("Socket error:", error);
+//   }
+// });
 
-          if (senderSocketId) {
-          io.to(senderSocketId).emit("receive_message", msg);
-        }
+socket.on("send_message", async (data) => {
+  console.log("SEND MESSAGE RECEIVED:", data);
 
-        } catch (error) {
-          console.log("Message save error:", error);
-        }
-      });
+  const receiverSocketId = onlineUsers.get(Number(data.receiver));
+  const senderSocketId = onlineUsers.get(Number(data.sender));
+
+  console.log("Receiver Socket:", receiverSocketId);
+  console.log("Sender Socket:", senderSocketId);
+
+});
 
       // DISCONNECT CLEANUP
       socket.on("disconnect", () => {
