@@ -72,42 +72,43 @@ const onlineUsers = new Map();
 });
 
       // ================= SEND MESSAGE (FIXED) =================
-//       socket.on("send_message", async (data) => {
-//   try {
-//     console.log("SEND MESSAGE RECEIVED:", data);
+      socket.on("send_message", async (data) => {
+  try {
+    console.log("SEND MESSAGE RECEIVED:", data);
 
-//     const payload = {
-//       sender: Number(data.sender),
-//       receiver: Number(data.receiver),
-//       text: data.text,
-//       createdAt: data.createdAt,
-//     };
+    const payload = {
+      sender: Number(data.sender),
+      receiver: Number(data.receiver),
+      text: data.text,
+      createdAt: data.createdAt,
+    };
 
-//     const receiverSocketId = onlineUsers.get(payload.receiver);
-//     const senderSocketId = onlineUsers.get(payload.sender);
+    const receiverSocketId = onlineUsers.get(payload.receiver);
+    const senderSocketId = onlineUsers.get(payload.sender);
 
-//     if (receiverSocketId) {
-//       io.to(receiverSocketId).emit("receive_message", payload);
-//     }
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("receive_message", payload);
+      io.to(receiverSocketId).emit("unread_updated");
+    }
 
-//     if (senderSocketId) {
-//       io.to(senderSocketId).emit("receive_message", payload);
-//     }
-//   } catch (error) {
-//     console.log("Socket error:", error);
-//   }
-// });
-
-socket.on("send_message", async (data) => {
-  console.log("SEND MESSAGE RECEIVED:", data);
-
-  const receiverSocketId = onlineUsers.get(Number(data.receiver));
-  const senderSocketId = onlineUsers.get(Number(data.sender));
-
-  console.log("Receiver Socket:", receiverSocketId);
-  console.log("Sender Socket:", senderSocketId);
-
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("receive_message", payload);
+    }
+  } catch (error) {
+    console.log("Socket error:", error);
+  }
 });
+
+// socket.on("send_message", async (data) => {
+//   console.log("SEND MESSAGE RECEIVED:", data);
+
+//   const receiverSocketId = onlineUsers.get(Number(data.receiver));
+//   const senderSocketId = onlineUsers.get(Number(data.sender));
+
+//   console.log("Receiver Socket:", receiverSocketId);
+//   console.log("Sender Socket:", senderSocketId);
+
+// });
 
       // DISCONNECT CLEANUP
       socket.on("disconnect", () => {

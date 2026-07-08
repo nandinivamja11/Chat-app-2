@@ -1,67 +1,29 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:5000/api/message";
+import api from "./api";
 
 // ==========================
 // Get All Users
 // ==========================
 export const getUsers = async () => {
-  const token = localStorage.getItem("token");
-
-  const response = await axios.get(
-    "http://localhost:5000/api/auth/users",
-    {
-      headers: {
-        Authorization: token,
-      },
-    }
-  );
-
+  const response = await api.get("/auth/users");
   return response.data;
 };
 
 // ==========================
 // Get Conversation
 // ==========================
-export const getConversation = async (
-  userId: string
-) => {
-  const token = localStorage.getItem("token");
-
-  const response = await axios.get(
-    `${API_URL}/${userId}`,
-    {
-      headers: {
-        Authorization: token,
-      },
-    }
-  );
-
+export const getConversation = async (userId: string) => {
+  const response = await api.get(`/message/conversation/${userId}`);
   return response.data;
 };
 
 // ==========================
 // Send Message
 // ==========================
-export const sendMessage = async (
-  receiver: string,
-  message: string
-) => {
-  const token = localStorage.getItem("token");
-
-  const response = await axios.post(
-    `${API_URL}/send`,
-    {
-      receiver,
-      message,
-    },
-    {
-      headers: {
-        Authorization: token,
-      },
-    }
-  );
-
+export const sendMessage = async (receiver: string, message: string) => {
+  const response = await api.post("/message/send", {
+    receiver,
+    message,
+  });
   return response.data;
 };
 
@@ -69,16 +31,15 @@ export const sendMessage = async (
 // Get My Chats
 // ==========================
 export const getMyChats = async () => {
-  const token = localStorage.getItem("token");
-
-  const response = await axios.get(
-    API_URL,
-    {
-      headers: {
-        Authorization: token,
-      },
-    }
-  );
-
+  const response = await api.get("/message/chats");
   return response.data;
+};
+
+export const getUnreadCounts = async () => {
+  return api.get("/message/unread");
+};
+
+export const markSeen = async (senderId: number)=>{
+
+    return api.put("/message/seen/" + senderId);
 };

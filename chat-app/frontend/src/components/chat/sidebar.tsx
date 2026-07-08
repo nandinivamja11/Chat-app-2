@@ -9,6 +9,8 @@ type Chat = {
   id: number;
   name: string;
   messages: Message[];
+  unreadCount?: number;
+  lastMessage?: string;
 };
 
 type SidebarProps = {
@@ -38,7 +40,7 @@ function Sidebar({
           const lastMessage =
             chat.messages?.length > 0
               ? chat.messages[chat.messages.length - 1].text
-              : "No messages yet";
+              : chat.lastMessage;
 
           return (
             <div
@@ -54,20 +56,27 @@ function Sidebar({
               </div>
 
               {/* Info */}
-              <div className="ml-3 flex-1">
+          <div className="ml-3 flex-1">
 
-                <div className="flex justify-between items-center">
-                  <h2 className="font-semibold text-gray-800">
-                    {chat.name}
-                  </h2>
-                </div>
+          <div className="flex justify-between items-center">
 
-                <p className="text-sm text-gray-500 truncate">
-                  {lastMessage}
-                </p>
+           <h2 className="font-semibold text-gray-800">
+             {chat.name}
+            </h2>
 
+          {chat.unreadCount && chat.unreadCount > 0 && (
+         <div
+           className="min-w-[22px] h-[22px] px-1 rounded-full bg-[#25D366] text-white
+           text-[11px] font-bold flex items-center justify-center">
+           {chat.unreadCount}
+        </div>
+          )}
+            </div>
+
+          <p className="text-sm text-gray-500 truncate">
+            {chat.lastMessage || "No messages yet"}
+          </p>
               </div>
-
             </div>
           );
         })}

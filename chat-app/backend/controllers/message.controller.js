@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
 const Message = require("../models/Message");
 const User = require("../models/User");
+const sequelize = require("../config/db");
 
 // ======================
 // Send Message
@@ -8,7 +9,7 @@ const User = require("../models/User");
 exports.sendMessage = async (req, res) => {
   try {
     const { receiver, message } = req.body;
-    const sender = Number(req.user.id);
+    const sender = Number(req.user.id);`  `
     const receiverId = Number(receiver);
 
     if (!receiver || !message) {
@@ -122,6 +123,47 @@ exports.getMyChats = async (req, res) => {
 
   } catch (err) {
     console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+};
+exports.markAsSeen = async (req, res) => {  
+  const myId = req.user.id;
+  const senderId = Number(req.params.senderId);
+
+  await Message.update(
+    { isSeen: true },
+      {
+        where: {
+          sender: senderId,
+          receiver: myId,
+          isSeen: false
+        }
+      }
+    );
+    res.json({
+      success: true
+    });
+  };
+
+exports.getUnreadCounts = async (req, res) => {
+  try {
+    const myId = Number(req.user.id);
+
+    const unread = await Message.findAll({
+      where: {
+        receiver: myId,
+        isSeen: false,
+      },
+      attributes: [
+        "sender",
+        [sequelize.fn("COUNT", sequelize.col("id")), "count"],
+      ],
+      group: ["sender"],
+    });
+
+    res.json(unread);
+  } catch (err) {
+    console.log(err);
     res.status(500).json({ message: err.message });
   }
 };

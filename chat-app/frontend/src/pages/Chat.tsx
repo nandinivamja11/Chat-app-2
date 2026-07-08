@@ -5,6 +5,8 @@ import MessageBubble from "../components/chat/MessageBubble";
 import MessageInput from "../components/chat/MessageInput";
 import socket from "../socket";
 import api from "../services/api";
+import { markSeen } from "../services/message.service";
+import { getUnreadCounts } from "../services/message.service";
 
 type Message = {
   sender: number;
@@ -17,6 +19,7 @@ type Chat = {
   id: number;
   name: string;
   messages: Message[];
+  unreadCount?: number;
 };
 
 function Chat() {
@@ -44,6 +47,34 @@ function Chat() {
 
   const currentChat = chats.find((c) => c.id === selectedChat);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [unreadCounts, setUnreadCounts] = useState<{
+  [key: number]: number; }>({});
+
+  useEffect(() => {
+
+    loadUnread();
+
+}, []);
+
+const loadUnread = async () => {
+  try {
+    const res = await getUnreadCounts();
+
+    console.log("Unread API Response:", res.data);
+
+    const counts: { [key: number]: number } = {};
+
+    res.data.forEach((item: any) => {
+      counts[item.sender] = Number(item.count);
+    });
+
+    console.log("Counts:", counts);
+
+    setUnreadCounts(counts);
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   useEffect(() => {
     const loadMessages = async () => {
@@ -64,6 +95,8 @@ function Chat() {
         }));
 
         setMessages(data);
+        await markSeen(selectedChat);
+        await loadUnread();
       } catch (err) {
         console.log(err);
       }
@@ -73,7 +106,11 @@ function Chat() {
   }, [selectedChat]);
 
   // ================= STEP 3: FETCH USERS =================
-  useEffect(() => {
+  useEffect(()=>{
+
+fetchUsers();
+
+},[]);
     const fetchUsers = async () => {
       try {
         const res = await api.get("/auth/users");
@@ -85,22 +122,23 @@ function Chat() {
             messages: [],
           }));
 
+
         setChats(users);
 
         if (users.length > 0) {
-      if (selectedChat !== null && users.some((user) => user.id === selectedChat)) {
-        setSelectedChat(selectedChat);
-      } else {
-        setSelectedChat(users[0].id);
-      }
-    }
-  } catch (err) {
+          if (selectedChat !== null && users.some((user) => user.id === selectedChat)) {
+            setSelectedChat(selectedChat);
+          } else {
+            setSelectedChat(users[0].id);
+          }
+        }
+      } catch (err) {
         console.log("Error fetching users:", err);
       }
     };
 
     fetchUsers();
-  }, [userId]);
+ 
 
   // ================= SOCKET =================
   useEffect(() => {
@@ -135,11 +173,18 @@ function Chat() {
     socket.on("connect", handleConnect);
     socket.on("connect_error", handleError);
     socket.on("receive_message", handleReceive);
+    socket.on("unread_updated", () => {
+    console.log("Unread event received");
+    loadUnread();
+    });
+    socket.on("messages_seen", loadUnread);
 
     return () => {
       socket.off("connect", handleConnect);
       socket.off("connect_error", handleError);
       socket.off("receive_message", handleReceive);
+      socket.off("unread_updated");
+      socket.off("messages_seen");
       socket.disconnect();
     };
   }, [userId, selectedChat]);
@@ -157,6 +202,16 @@ function Chat() {
 
     // instant UI update
     setMessages((prev) => [...prev, msg]);
+    setChats((prev) =>
+      prev.map((chat) =>
+      chat.id === selectedChat
+        ? {
+          ...chat,
+          lastMessage: message,
+        }
+      : chat
+  )
+);
 
     try {
       const res = await api.post("/message/send", {
@@ -179,12 +234,15 @@ function Chat() {
     localStorage.setItem("selectedChat", String(selectedChat));
     setMessage("");
   };
+          const chatsWithUnread = chats.map(chat => ({
+          ...chat,unreadCount: unreadCounts[chat.id] || undefined
+        }));
 
   return (
     <div className="h-screen flex bg-[#f0f2f5]">
 
       <Sidebar
-        chats={chats}
+        chats={chatsWithUnread}
         selectedChat={selectedChat || 0}
         setSelectedChat={handleSelectChat}
       />

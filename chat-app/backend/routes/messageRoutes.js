@@ -7,6 +7,8 @@ const {
   sendMessage,
   getConversation,
   getMyChats,
+  markAsSeen,
+  getUnreadCounts,
 } = require("../controllers/message.controller");
 
 // ================= ROUTES =================
@@ -19,5 +21,8 @@ router.get("/chats", authMiddleware, getMyChats);
 
 // get conversation between TWO users (IMPORTANT FIX)
 router.get("/conversation/:userId", authMiddleware, getConversation);
+router.get("/unread", authMiddleware, getUnreadCounts);
+
+router.put("/seen/:senderId", authMiddleware, markAsSeen);
 
 module.exports = router;
