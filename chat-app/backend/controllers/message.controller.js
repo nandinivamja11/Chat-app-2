@@ -49,6 +49,52 @@ exports.sendMessage = async (req, res) => {
 };
 
 // ======================
+// Upload Message (File)
+// ======================
+exports.uploadMessage = async (req, res) => {
+  try {
+    const sender = Number(req.user.id);
+    const receiver = Number(req.body.receiver);
+
+    if (!req.file) {
+      return res.status(400).json({
+        message: "No file uploaded",
+      });
+    }
+
+    let type = "file";
+
+    if (req.file.mimetype.startsWith("image/")) {
+      type = "image";
+    } else if (req.file.mimetype.startsWith("video/")) {
+      type = "video";
+    } else if (req.file.mimetype.startsWith("audio/")) {
+      type = "audio";
+    }
+
+    const newMessage = await Message.create({
+      sender,
+      receiver,
+      message: null,
+      type,
+      fileName: req.file.originalname,
+      fileUrl: "/uploads/chat/" + req.file.filename,
+      mimeType: req.file.mimetype,
+    });
+
+    res.status(201).json({
+      success: true,
+      data: newMessage,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
+// ======================
 // Get Conversation (FIXED)
 // ======================
 exports.getConversation = async (req, res) => {

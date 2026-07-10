@@ -5,10 +5,11 @@ import MessageBubble from "../components/chat/MessageBubble";
 import MessageInput from "../components/chat/MessageInput";
 import socket from "../socket";
 import api from "../services/api";
-import { markSeen } from "../services/message.service";
+import { markSeen, getMyChats } from "../services/message.service";
 import { getUnreadCounts } from "../services/message.service";
 
 type Message = {
+  id: number;
   sender: number;
   receiver: number;
   text: string;
@@ -95,6 +96,20 @@ const loadUnread = async () => {
         }));
 
         setMessages(data);
+        if (data.length > 0) {
+  const last = data[data.length - 1];
+
+  setChats((prev) =>
+    prev.map((chat) =>
+      chat.id === selectedChat
+        ? {
+            ...chat,
+            lastMessage: last.text,
+          }
+        : chat
+    )
+  );
+}
         await markSeen(selectedChat);
         await loadUnread();
       } catch (err) {
@@ -112,33 +127,56 @@ fetchUsers();
 
 },[]);
     const fetchUsers = async () => {
-      try {
-        const res = await api.get("/auth/users");
-        const users = res.data
-          .filter((u: any) => u.id !== userId)
-          .map((user: any) => ({
+  try {
+    const res = await api.get("/auth/users");
+
+    const users = res.data.filter((u: any) => u.id !== userId);
+
+    const chats = await Promise.all(
+      users.map(async (user: any) => {
+        try {
+          const res = await api.get(`/message/conversation/${user.id}`);
+
+          const messages = res.data;
+
+          const lastMessage =
+            messages.length > 0
+              ? messages[messages.length - 1].message
+              : "";
+
+          return {
             id: user.id,
             name: user.username,
             messages: [],
-          }));
-
-
-        setChats(users);
-
-        if (users.length > 0) {
-          if (selectedChat !== null && users.some((user) => user.id === selectedChat)) {
-            setSelectedChat(selectedChat);
-          } else {
-            setSelectedChat(users[0].id);
-          }
+            lastMessage,
+          };
+        } catch {
+          return {
+            id: user.id,
+            name: user.username,
+            messages: [],
+            lastMessage: "",
+          };
         }
-      } catch (err) {
-        console.log("Error fetching users:", err);
-      }
-    };
+      })
+    );
 
-    fetchUsers();
- 
+    setChats(chats);
+
+    if (chats.length > 0) {
+      if (
+        selectedChat !== null &&
+        chats.some((chat) => chat.id === selectedChat)
+      ) {
+        setSelectedChat(selectedChat);
+      } else {
+        setSelectedChat(chats[0].id);
+      }
+    }
+  } catch (err) {
+    console.log("Error fetching users:", err);
+  }
+};
 
   // ================= SOCKET =================
   useEffect(() => {
@@ -162,6 +200,16 @@ fetchUsers();
     };
 
     setMessages((prev) => [...prev, msg]);
+    setChats((prev) =>
+  prev.map((chat) =>
+    chat.id === data.sender || chat.id === data.receiver
+      ? {
+          ...chat,
+          lastMessage: data.text,
+        }
+      : chat
+  )
+);
   }
 };
 

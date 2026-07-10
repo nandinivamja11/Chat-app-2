@@ -34,13 +34,16 @@ const onlineUsers = new Map();
     await sequelize.authenticate();
     console.log("✅ PostgreSQL Connected");
 
-    await sequelize.sync();
+    await sequelize.sync({ alter: true });
     console.log("✅ Database Synced");
 
     app.use(
       cors({
         origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true,
+        optionsSuccessStatus: 204,
       })
     );
     app.use(express.json());
@@ -53,7 +56,7 @@ const onlineUsers = new Map();
     app.use("/api/chat", chatRoutes);
     app.use("/api/profile", profileRoutes);
     app.use("/api/message", messageRoutes);
-    app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+    app.use("/uploads/profiles", express.static(path.join(__dirname, "uploads/profiles")));
 
     // ================= SOCKET.IO =================
     io.on("connection", (socket) => {

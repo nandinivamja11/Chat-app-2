@@ -31,13 +31,33 @@ const Message = sequelize.define(
 
     message: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
     },
 
     isSeen: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    
+    type: {
+      type: DataTypes.STRING,
+      defaultValue: "text",
+    },
+
+fileName: {
+  type: DataTypes.STRING,
+  allowNull: true,
+},
+
+fileUrl: {
+  type: DataTypes.STRING,
+  allowNull: true,
+},
+
+mimeType: {
+  type: DataTypes.STRING,
+  allowNull: true,
+},
   },
   {
     tableName: "messages",

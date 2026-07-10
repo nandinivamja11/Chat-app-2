@@ -4,7 +4,7 @@ const path = require("path");
 // Storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/");
+    cb(null, "uploads/profiles/");
   },
 
   filename: function (req, file, cb) {
@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
 
 // File Filter
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|gif|webp/;
+const allowedTypes = /jpeg|jpg|png|gif|webp/;
 
   // Extension Check
   const extname = allowedTypes.test(

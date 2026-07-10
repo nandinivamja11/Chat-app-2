@@ -1,14 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware");
-const{
-    getprofile,
-    updateProfile,
-} = require("../controllers/profile.controller");
-// const { models } = require("mongoose");
+const { getprofile, updateProfile } = require("../controllers/profile.controller");
+const upload = require("../middleware/profileupload");
 
 router.get("/", authMiddleware, getprofile);
-const upload = require("../middleware/upload");
 
 router.put(
   "/",
@@ -16,4 +12,5 @@ router.put(
   upload.single("profileImage"),
   updateProfile
 );
+
 module.exports = router;

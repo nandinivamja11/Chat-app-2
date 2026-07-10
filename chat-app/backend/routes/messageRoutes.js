@@ -2,9 +2,11 @@ const express = require("express");
 const router = express.Router();
 
 const authMiddleware = require("../middleware/authMiddleware");
+const chatUpload = require("../middleware/chatUpload");
 
 const {
   sendMessage,
+  uploadMessage,
   getConversation,
   getMyChats,
   markAsSeen,
@@ -15,6 +17,8 @@ const {
 
 // send message
 router.post("/send", authMiddleware, sendMessage);
+router.post("/upload", authMiddleware, chatUpload.single("file"),
+  uploadMessage);
 
 // get all chats (sidebar list)
 router.get("/chats", authMiddleware, getMyChats);
