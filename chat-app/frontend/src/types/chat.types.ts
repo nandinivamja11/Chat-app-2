@@ -1,11 +1,32 @@
+export type Message = {
+  id?: number;
+  sender: number;
+  receiver: number;
+
+  text: string | null;
+
+  type?: string;
+  fileUrl?: string;
+  fileName?: string;
+
+  time: string;
+};
+
 export type Chat = {
-  id: string;
+  id: number;
   name: string;
+
+  messages: Message[];
+
+  unreadCount?: number;
+
+  lastMessage?: string;
+
   avatar?: string;
-  lastMessage: string;
-  lastMessageTime: string;
-  unreadCount: number;
-  isOnline: boolean;
+
+  isOnline?: boolean;
+
+  lastMessageTime?: string;
 };
 
 export type ChatResponse = {

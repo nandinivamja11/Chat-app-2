@@ -53,18 +53,6 @@ function Login() {
         <form onSubmit={handleLogin} className="space-y-5">
 
           {/* Email */}
-          {/* <div>
-            <label className="block mb-1 text-sm font-medium text-white/90">
-              Email
-            </label>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-white/90 text-black outline-none focus:ring-4 focus:ring-pink-300 transition"
-            />
-          </div> */}
            <div>
             <label className="block mb-1 font-medium">Email</label>
             <input type="email" placeholder="Enter your email" value={email}
@@ -74,18 +62,6 @@ function Login() {
         </div>
 
           {/* Password */}
-          {/* <div>
-            <label className="block mb-1 text-sm font-medium text-white/90">
-              Password
-            </label>
-            <input
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-white/90 text-black outline-none focus:ring-4 focus:ring-pink-300 transition"
-            />
-          </div> */}
            <div>
             <label className="block mb-1 font-medium">Password</label>
             <input type="password" placeholder="Enter your password" value={password}

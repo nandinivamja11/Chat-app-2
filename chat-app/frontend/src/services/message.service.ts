@@ -27,6 +27,23 @@ export const sendMessage = async (receiver: string, message: string) => {
   return response.data;
 };
 
+export const uploadFile = async (
+  receiverId: number,
+  file: File
+) => {
+  const formData = new FormData();
+
+  formData.append("receiver", receiverId.toString());
+  formData.append("file", file);
+
+  const response = await api.post("/message/upload", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data;
+};
 // ==========================
 // Get My Chats
 // ==========================

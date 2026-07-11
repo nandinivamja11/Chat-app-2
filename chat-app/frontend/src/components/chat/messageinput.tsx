@@ -1,16 +1,34 @@
 import type { Dispatch, SetStateAction } from "react";
+import { useRef } from "react";
 
-type MessageInputProps = {
-  message: string;
-  setMessage: Dispatch<SetStateAction<string>>;
-  handleSend: () => void;
-};
+interface MessageInputProps {
+    message: string;
+    setMessage: React.Dispatch<React.SetStateAction<string>>;
+    handleSend: () => void;
+    onFileSelect: (file: File) => void;
+}
 
 function MessageInput({
   message,
   setMessage,
   handleSend,
+  onFileSelect,
 }: MessageInputProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleAttachmentClick = () => {
+    fileInputRef.current?.click();
+};
+const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+) => {
+
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    onFileSelect(file);
+
+}; 
 
   const onSend = () => {
     if (!message.trim()) return;
@@ -42,9 +60,16 @@ function MessageInput({
       />
 
       {/* Attachment */}
-      <button className="text-2xl hover:scale-110 transition">
-         📎
-      </button>
+      <button type="button"
+          onClick={handleAttachmentClick}>
+           📎
+        </button>
+        <input
+    type="file"
+    ref={fileInputRef}
+    style={{ display: "none" }}
+    onChange={handleFileChange}
+/>
 
       {/* Send button */}
       <button

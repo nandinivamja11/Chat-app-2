@@ -57,6 +57,7 @@ const onlineUsers = new Map();
     app.use("/api/profile", profileRoutes);
     app.use("/api/message", messageRoutes);
     app.use("/uploads/profiles", express.static(path.join(__dirname, "uploads/profiles")));
+    app.use("/uploads/chat", express.static(path.join(__dirname, "uploads/chat")));
 
     // ================= SOCKET.IO =================
     io.on("connection", (socket) => {
@@ -80,11 +81,14 @@ const onlineUsers = new Map();
     console.log("SEND MESSAGE RECEIVED:", data);
 
     const payload = {
-      sender: Number(data.sender),
-      receiver: Number(data.receiver),
-      text: data.text,
-      createdAt: data.createdAt,
-    };
+       sender: Number(data.sender),
+       receiver: Number(data.receiver),
+       text: data.text || null,
+       type: data.type || null,
+       fileUrl: data.fileUrl || null,
+       fileName: data.fileName || null,
+       createdAt: data.createdAt,
+      };
 
     const receiverSocketId = onlineUsers.get(payload.receiver);
     const senderSocketId = onlineUsers.get(payload.sender);
@@ -101,17 +105,6 @@ const onlineUsers = new Map();
     console.log("Socket error:", error);
   }
 });
-
-// socket.on("send_message", async (data) => {
-//   console.log("SEND MESSAGE RECEIVED:", data);
-
-//   const receiverSocketId = onlineUsers.get(Number(data.receiver));
-//   const senderSocketId = onlineUsers.get(Number(data.sender));
-
-//   console.log("Receiver Socket:", receiverSocketId);
-//   console.log("Sender Socket:", senderSocketId);
-
-// });
 
       // DISCONNECT CLEANUP
       socket.on("disconnect", () => {
