@@ -1,3 +1,4 @@
+import api from "../services/api";
 import { useEffect } from "react";
 import { getUsers,} from "../services/chat.service";
 

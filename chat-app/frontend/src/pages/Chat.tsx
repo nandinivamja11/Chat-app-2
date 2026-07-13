@@ -27,12 +27,10 @@ function Chat() {
   const { unreadCounts, loadUnread } = useUnread();
 
 const { handleFileSelect } = useFileUpload({ selectedChat, setMessages, setChats,});
-
 const { handleSend } = useSendMessage({ userId, selectedChat, message, setMessage, setMessages,
   setChats,});
 
 useMessages({ selectedChat, setMessages, setChats, loadUnread,});
-
 useUsers({ userId, selectedChat, setSelectedChat, setChats, });
 
   const handleSelectChat = (id: number) => {

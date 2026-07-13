@@ -17,15 +17,17 @@ function Login() {
     try {
       const data = await loginUser(email, password);
       localStorage.setItem("token", data.token);
-      localStorage.setItem("userId", data.user.id);
+      localStorage.setItem("userId", String(data.user.id));
       localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("name", data.user.name || "");
+      localStorage.setItem("name", data.user.username || "");
       setLoading(false);
       navigate("/chat");
     } catch (err: any) {
       setLoading(false);
       setError(
-        err?.response?.data?.message || err?.message || "Login failed. Please try again."
+        err?.response?.data?.message ||
+        err?.message ||
+        "Login failed. Please try again."
       );
     }
   };

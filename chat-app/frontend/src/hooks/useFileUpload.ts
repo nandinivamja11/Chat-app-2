@@ -1,10 +1,7 @@
 import socket from "../socket";
 import { uploadFile } from "../services/message.service";
 
-export default function useFileUpload({
-  selectedChat,
-  setMessages,
-  setChats,
+export default function useFileUpload({ selectedChat, setMessages, setChats,
 }: any) {
 
   const handleFileSelect = async (file: File) => {

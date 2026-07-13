@@ -23,9 +23,15 @@ export const loginUser = async (
     password,
   });
 
-  localStorage.setItem("token", response.data.token);
-  localStorage.setItem("user", JSON.stringify(response.data.user));
-  localStorage.setItem("userId", String(response.data.user.id)); // ⭐ ADD THIS
+  const { token, user } = response.data ?? {};
+
+  if (!token || !user) {
+    throw new Error("Invalid login response from server");
+  }
+
+  localStorage.setItem("token", token);
+  localStorage.setItem("user", JSON.stringify(user));
+  localStorage.setItem("userId", String(user.id));
 
   return response.data;
 };
