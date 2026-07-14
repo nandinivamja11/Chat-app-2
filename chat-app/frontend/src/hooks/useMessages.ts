@@ -51,7 +51,9 @@ export default function useMessages({ selectedChat, setMessages, setChats, loadU
         );
       }
 
+      if (selectedChat < 1000000) {
       await markSeen(selectedChat);
+    }
       await loadUnread();
 
     } catch (err) {

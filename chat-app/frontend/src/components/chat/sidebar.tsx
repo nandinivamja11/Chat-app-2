@@ -1,3 +1,5 @@
+import { Users } from "lucide-react";
+
 type Message = {
   id: number;
   text: string;
@@ -17,20 +19,30 @@ type SidebarProps = {
   chats: Chat[];
   selectedChat: number;
   setSelectedChat: (id: number) => void;
+  onCreateGroup: () => void;
 };
 
 function Sidebar({
   chats,
   selectedChat,
   setSelectedChat,
+  onCreateGroup,
 }: SidebarProps) {
   return (
     <div className="w-80 h-screen bg-white border-r flex flex-col">
 
       {/* Header */}
-      <div className="p-4 border-b">
-        <h2 className="text-xl font-bold">Chats</h2>
-      </div>
+      <div className="p-4 border-b flex items-center justify-between">
+  <h2 className="text-xl font-bold">Chats</h2>
+
+  <button
+    onClick={onCreateGroup}
+    className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition"
+  >
+    <Users size={18} />
+    Group
+  </button>
+</div>
 
       {/* Chat list */}
       <div className="flex-1 overflow-y-auto">
@@ -51,8 +63,11 @@ function Sidebar({
               }`}>
 
               {/* Avatar */}
-              <div className="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">
-                {chat.name.charAt(0).toUpperCase()}
+              <div
+                className={`w-12 h-12 rounded-full text-white flex items-center justify-center font-bold ${
+                chat.isGroup ? "bg-green-500" : "bg-blue-500"
+              }`}>
+              {chat.isGroup ? "👥" : chat.name.charAt(0).toUpperCase()}
               </div>
 
               {/* Info */}

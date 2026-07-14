@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
-const User = require("./User");
+// const User = require("./User");
 
 const Message = sequelize.define(
   "Message",
@@ -66,24 +66,24 @@ mimeType: {
 );
 
 // Associations
-User.hasMany(Message, {
-  foreignKey: "sender",
-  as: "SentMessages",
-});
+// User.hasMany(Message, {
+//   foreignKey: "sender",
+//   as: "SentMessages",
+// });
 
-User.hasMany(Message, {
-  foreignKey: "receiver",
-  as: "ReceivedMessages",
-});
+// User.hasMany(Message, {
+//   foreignKey: "receiver",
+//   as: "ReceivedMessages",
+// });
 
-Message.belongsTo(User, {
-  foreignKey: "sender",
-  as: "Sender",
-});
+// Message.belongsTo(User, {
+//   foreignKey: "sender",
+//   as: "Sender",
+// });
 
-Message.belongsTo(User, {
-  foreignKey: "receiver",
-  as: "Receiver",
-});
+// Message.belongsTo(User, {
+//   foreignKey: "receiver",
+//   as: "Receiver",
+// });
 
 module.exports = Message;   

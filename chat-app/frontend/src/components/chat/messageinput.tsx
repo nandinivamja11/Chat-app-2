@@ -1,11 +1,12 @@
 import type { Dispatch, SetStateAction } from "react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import EmojiPicker from "emoji-picker-react";
 
 interface MessageInputProps {
-    message: string;
-    setMessage: React.Dispatch<React.SetStateAction<string>>;
-    handleSend: () => void;
-    onFileSelect: (file: File) => void;
+  message: string;
+  setMessage: Dispatch<SetStateAction<string>>;
+  handleSend: () => void;
+  onFileSelect: (file: File) => void;
 }
 
 function MessageInput({
@@ -15,41 +16,81 @@ function MessageInput({
   onFileSelect,
 }: MessageInputProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const emojiRef = useRef<HTMLDivElement>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const handleAttachmentClick = () => {
     fileInputRef.current?.click();
-};
-const handleFileChange = (
+  };
+
+  const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>
-) => {
-
+  ) => {
     const file = e.target.files?.[0];
-
     if (!file) return;
-
     onFileSelect(file);
-
-}; 
+  };
 
   const onSend = () => {
     if (!message.trim()) return;
     handleSend();
+    setShowEmojiPicker(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     if (e.key === "Enter") {
       onSend();
     }
   };
 
+  const handleEmojiClick = (emojiData: any) => {
+    setMessage((prev) => prev + emojiData.emoji);
+  };
+
+  // 👇 Outside click -> Close picker
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        emojiRef.current &&
+        !emojiRef.current.contains(event.target as Node)
+      ) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+    };
+  }, []);
+
   return (
     <div className="bg-white border-t flex items-center gap-3 p-4">
+      <div className="relative" ref={emojiRef}>
+        <button
+          type="button"
+          className="text-2xl hover:scale-110 transition"
+          onClick={() =>
+            setShowEmojiPicker(!showEmojiPicker)
+          } >
+          😊
+        </button>
 
-      {/* Emoji button */}
-      <button className="text-2xl hover:scale-110 transition">
-        😊
-      </button>
+        {showEmojiPicker && (
+          <div className="absolute bottom-12 left-0 z-50">
+            <EmojiPicker
+              onEmojiClick={handleEmojiClick}
+              width={320}
+              height={420}
+            />
+          </div>
+        )}
+      </div>
 
-      {/* Input */}
       <input
         type="text"
         placeholder="Type a message..."
@@ -59,19 +100,19 @@ const handleFileChange = (
         className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
-      {/* Attachment */}
-      <button type="button"
-          onClick={handleAttachmentClick}>
-           📎
-        </button>
-        <input
-    type="file"
-    ref={fileInputRef}
-    style={{ display: "none" }}
-    onChange={handleFileChange}
-/>
+      <button
+        type="button"
+        onClick={handleAttachmentClick}>
+        📎
+      </button>
 
-      {/* Send button */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: "none" }}
+        onChange={handleFileChange}
+      />
+
       <button
         onClick={onSend}
         disabled={!message.trim()}
@@ -83,7 +124,6 @@ const handleFileChange = (
       >
         Send
       </button>
-
     </div>
   );
 }

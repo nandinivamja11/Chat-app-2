@@ -8,7 +8,7 @@ const path = require("path");
 dotenv.config();
 
 const sequelize = require("./config/db");
-
+const groupRoutes = require("./routes/groupRoutes");
 const authRoutes = require("./routes/authRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const profileRoutes = require("./routes/profileRotes");
@@ -47,14 +47,6 @@ const onlineUsers = new Map();
       })
     );
     app.use(express.json());
-    app.use(express.urlencoded({ extended: true }));
-
-    app.use((err, req, res, next) => {
-      if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
-        return res.status(400).json({ message: "Invalid JSON payload" });
-      }
-      next(err);
-    });
 
     app.get("/health", (_req, res) => {
       res.json({ status: "ok" });
@@ -62,6 +54,7 @@ const onlineUsers = new Map();
 
     app.use("/api/auth", authRoutes);
     app.use("/api/chat", chatRoutes);
+    app.use("/api/group", groupRoutes);
     app.use("/api/profile", profileRoutes);
     app.use("/api/message", messageRoutes);
     app.use("/uploads/profiles", express.static(path.join(__dirname, "uploads/profiles")));

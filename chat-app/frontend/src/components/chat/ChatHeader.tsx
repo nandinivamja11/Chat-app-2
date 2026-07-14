@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
+import { Phone, Video, EllipsisVertical } from "lucide-react";
 
 type ChatHeaderProps = {
   name?: string;
+  isGroup?: boolean;
 };
 
-function ChatHeader({ name }: ChatHeaderProps) {
+function ChatHeader({ name, isGroup }: ChatHeaderProps) {
   const navigate = useNavigate();
 
   const userName = name || "Chat User";
@@ -22,30 +24,32 @@ function ChatHeader({ name }: ChatHeaderProps) {
 
         {/* Name + Status */}
         <div>
-          <h2 className="font-semibold text-lg text-gray-800">
-            {userName}
-          </h2>
-          <p className="text-sm text-green-500">online</p>
-        </div>
+        <h2 className="font-semibold text-lg">
+          {isGroup ? "👥 " : ""}
+          {name}
+        </h2>
 
+       <p className="text-sm text-gray-500">
+          {isGroup ? "Group Chat" : "Online"}
+       </p>
+      </div>
       </div>
 
       {/* RIGHT SIDE */}
       <div className="flex items-center gap-4 text-xl">
 
-        <button className="hover:text-blue-500 transition">
-          📞
+        <button className="p-2 rounded-full hover:bg-gray-100">
+           <Phone size={22} />
         </button>
 
-        <button className="hover:text-blue-500 transition">
-          🎥
+        <button className="p-2 rounded-full hover:bg-gray-100">
+           <Video size={22} />
         </button>
 
         <button
           onClick={() => navigate("/profile")}
-          className="hover:text-blue-500 transition"
-        >
-          ⋮
+          className="p-2 rounded-full hover:bg-gray-100">
+          <EllipsisVertical size={22} />
         </button>
 
       </div>

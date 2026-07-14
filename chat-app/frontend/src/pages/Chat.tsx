@@ -12,6 +12,9 @@ import useUsers from "../hooks/useUsers";
 import useUnread from "../hooks/useUnread";
 
 function Chat() {
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [groupName, setGroupName] = useState("");
+  const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
   const userId = Number(localStorage.getItem("userId"));
   const storedSelectedChat = Number(localStorage.getItem("selectedChat"));
 
@@ -37,12 +40,45 @@ useUsers({ userId, selectedChat, setSelectedChat, setChats, });
     setSelectedChat(id);
     localStorage.setItem("selectedChat", String(id));
   };
+  const toggleMember = (id: number) => {
+  setSelectedMembers((prev) =>
+    prev.includes(id)
+      ? prev.filter((memberId) => memberId !== id)
+      : [...prev, id]
+  );
+};
 
   useEffect(() => {
     if (selectedChat !== null) {
       localStorage.setItem("selectedChat", String(selectedChat));
     }
   }, [selectedChat]);
+  const handleCreateGroup = () => {
+  if (!groupName.trim()) {
+    alert("Please enter group name");
+    return;
+  }
+
+  if (selectedMembers.length < 2) {
+    alert("Select at least 2 members");
+    return;
+  }
+
+  const newGroup = {
+    id: Date.now(),
+    name: groupName,
+    messages: [],
+    lastMessage: "Group created",
+    unreadCount: 0,
+    isGroup: true,
+  };
+
+  setChats((prev) => [newGroup, ...prev]);
+
+  setGroupName("");
+  setSelectedMembers([]);
+  setShowCreateGroup(false);
+};
 
 const handleReceive = (data: any) => {
    if (
@@ -93,15 +129,17 @@ const handleReceive = (data: any) => {
     <div className="h-screen flex bg-[#f0f2f5]">
 
       <Sidebar
-        chats={chatsWithUnread}
-        selectedChat={selectedChat || 0}
-        setSelectedChat={handleSelectChat}
+      chats={chats}
+      selectedChat={selectedChat}
+      setSelectedChat={setSelectedChat}
+      onCreateGroup={() => setShowCreateGroup(true)}
       />
 
       <div className="flex-1 flex flex-col">
 
         <ChatHeader
-          name={currentChat?.name || "Select User"}
+        name={currentChat?.name || "Select User"}
+        isGroup={currentChat?.isGroup}
         />
 
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
@@ -124,6 +162,59 @@ const handleReceive = (data: any) => {
           handleSend={handleSend}
           onFileSelect={handleFileSelect}
         />
+        {showCreateGroup && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="bg-white rounded-xl p-6 w-[400px] shadow-xl">
+
+      <h2 className="text-xl font-bold mb-4">
+        Create Group
+      </h2>
+
+      <input type="text"
+  placeholder="Enter Group Name"
+  value={groupName}
+  onChange={(e) => setGroupName(e.target.value)}
+  className="w-full border rounded-lg p-2 mb-4"
+/>
+<div className="max-h-60 overflow-y-auto border rounded-lg mb-4">
+  {chats.map((chat) => (
+    <label
+      key={chat.id}
+      className="flex items-center gap-3 p-3 border-b cursor-pointer hover:bg-gray-100"
+    >
+      <input
+        type="checkbox"
+        checked={selectedMembers.includes(chat.id)}
+        onChange={() => toggleMember(chat.id)}
+      />
+
+      <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">
+        {chat.name.charAt(0).toUpperCase()}
+      </div>
+
+      <span>{chat.name}</span>
+    </label>
+  ))}
+</div>
+
+      <div className="flex justify-end gap-2">
+        <button
+          onClick={() => setShowCreateGroup(false)}
+          className="px-4 py-2 bg-gray-300 rounded-lg"
+        >
+          Cancel
+        </button>
+
+        <button
+           onClick={handleCreateGroup}
+           className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+           Create
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
 
       </div>
     </div>

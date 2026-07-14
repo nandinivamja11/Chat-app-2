@@ -9,7 +9,7 @@ const sequelize = require("../config/db");
 exports.sendMessage = async (req, res) => {
   try {
     const { receiver, message } = req.body;
-    const sender = Number(req.user.id);`  `
+    const sender = Number(req.user.id);
     const receiverId = Number(receiver);
 
     if (!receiver || !message) {
