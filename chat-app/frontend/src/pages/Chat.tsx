@@ -24,7 +24,7 @@ function Chat() {
       name: g.groupName,
       isGroup: true,
       avatar: g.groupImage || "",
-      members: g.GroupMembers || [],
+      members: g.Members || [],
       lastMessage: "",
       unreadCount: 0,
     }));

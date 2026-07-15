@@ -48,7 +48,7 @@ exports.getMyGroups = async (req, res) => {
     const userId = req.user.id;
 
     const groups = await Group.findAll({
-      include: [
+       include: [
         {
           model: GroupMember,
           as: "Members",
