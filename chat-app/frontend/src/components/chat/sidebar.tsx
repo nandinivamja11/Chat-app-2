@@ -1,23 +1,9 @@
 import { Users } from "lucide-react";
-
-type Message = {
-  id: number;
-  text: string;
-  sender: string;
-  time: string;
-};
-
-type Chat = {
-  id: number;
-  name: string;
-  messages: Message[];
-  unreadCount?: number;
-  lastMessage?: string;
-};
+import { Chat } from "../../types/chat.types";
 
 type SidebarProps = {
   chats: Chat[];
-  selectedChat: number;
+  selectedChat: number | null;
   setSelectedChat: (id: number) => void;
   onCreateGroup: () => void;
 };
@@ -54,9 +40,11 @@ function Sidebar({
               ? chat.messages[chat.messages.length - 1].text
               : chat.lastMessage;
 
+          const chatKey = chat.isGroup ? `group-${chat.id}` : `user-${chat.id}`;
+
           return (
             <div
-              key={chat.id}
+              key={chatKey}
               onClick={() => setSelectedChat(chat.id)}
               className={`flex items-center p-4 cursor-pointer border-b transition hover:bg-gray-100 ${
                 selectedChat === chat.id ? "bg-blue-100" : ""
@@ -81,7 +69,7 @@ function Sidebar({
 
           {chat.unreadCount && chat.unreadCount > 0 && (
          <div
-           className="min-w-[22px] h-[22px] px-1 rounded-full bg-[#25D366] text-white
+           className="min-w-5.5 h-5.5 px-1 rounded-full bg-[#25D366] text-white
            text-[11px] font-bold flex items-center justify-center">
            {chat.unreadCount}
         </div>

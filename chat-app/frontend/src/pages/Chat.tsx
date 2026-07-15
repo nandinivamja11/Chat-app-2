@@ -10,10 +10,34 @@ import useMessages from "../hooks/useMessages";
 import useSendMessage from "../hooks/useSendMessage";
 import useUsers from "../hooks/useUsers";
 import useUnread from "../hooks/useUnread";
+import { createGroup, getMyGroups } from "../services/group.service";
 
 function Chat() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [groupName, setGroupName] = useState("");
+  const fetchGroups = async () => {
+  try {
+    const groups = await getMyGroups();
+
+    const formattedGroups = groups.map((g: any) => ({
+      id: g.id,
+      name: g.groupName,
+      isGroup: true,
+      avatar: g.groupImage || "",
+      members: g.GroupMembers || [],
+      lastMessage: "",
+      unreadCount: 0,
+    }));
+
+    setChats((prev: any) => {
+      const personalChats = prev.filter((c: any) => !c.isGroup);
+      return [...formattedGroups, ...personalChats];
+    });
+
+  } catch (err) {
+    console.log("Fetch Groups Error:", err);
+  }
+};
   const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
   const userId = Number(localStorage.getItem("userId"));
   const storedSelectedChat = Number(localStorage.getItem("selectedChat"));
@@ -53,7 +77,8 @@ useUsers({ userId, selectedChat, setSelectedChat, setChats, });
       localStorage.setItem("selectedChat", String(selectedChat));
     }
   }, [selectedChat]);
-  const handleCreateGroup = () => {
+
+  const handleCreateGroup = async () => {
   if (!groupName.trim()) {
     alert("Please enter group name");
     return;
@@ -64,21 +89,24 @@ useUsers({ userId, selectedChat, setSelectedChat, setChats, });
     return;
   }
 
-  const newGroup = {
-    id: Date.now(),
-    name: groupName,
-    messages: [],
-    lastMessage: "Group created",
-    unreadCount: 0,
-    isGroup: true,
-  };
+  try {
+    console.log("Group Name:", groupName);
+    console.log("Selected Members:", selectedMembers);
+    await createGroup(groupName, selectedMembers);
+    await fetchGroups();
 
-  setChats((prev) => [newGroup, ...prev]);
-
-  setGroupName("");
-  setSelectedMembers([]);
-  setShowCreateGroup(false);
+    setGroupName("");
+    setSelectedMembers([]);
+    setShowCreateGroup(false);
+  } catch (err) {
+    console.error(err);
+    alert("Failed to create group");
+  }
 };
+
+useEffect(() => {
+  fetchGroups();
+}, []);
 
 const handleReceive = (data: any) => {
    if (
@@ -122,17 +150,18 @@ const handleReceive = (data: any) => {
   });
 
           const chatsWithUnread = chats.map(chat => ({
-          ...chat,unreadCount: unreadCounts[chat.id] || undefined
+          ...chat,
+          unreadCount: unreadCounts[chat.id] || undefined,
         }));
 
   return (
     <div className="h-screen flex bg-[#f0f2f5]">
 
       <Sidebar
-      chats={chats}
-      selectedChat={selectedChat}
-      setSelectedChat={setSelectedChat}
-      onCreateGroup={() => setShowCreateGroup(true)}
+        chats={chatsWithUnread}
+        selectedChat={selectedChat}
+        setSelectedChat={setSelectedChat}
+        onCreateGroup={() => setShowCreateGroup(true)}
       />
 
       <div className="flex-1 flex flex-col">
@@ -177,24 +206,26 @@ const handleReceive = (data: any) => {
   className="w-full border rounded-lg p-2 mb-4"
 />
 <div className="max-h-60 overflow-y-auto border rounded-lg mb-4">
-  {chats.map((chat) => (
-    <label
-      key={chat.id}
-      className="flex items-center gap-3 p-3 border-b cursor-pointer hover:bg-gray-100"
-    >
-      <input
-        type="checkbox"
-        checked={selectedMembers.includes(chat.id)}
-        onChange={() => toggleMember(chat.id)}
-      />
+  {chats
+    .filter((chat) => !chat.isGroup)
+    .map((chat) => (
+      <label
+        key={chat.id}
+        className="flex items-center gap-3 p-3 border-b cursor-pointer hover:bg-gray-100"
+      >
+        <input
+          type="checkbox"
+          checked={selectedMembers.includes(chat.id)}
+          onChange={() => toggleMember(chat.id)}
+        />
 
-      <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">
-        {chat.name.charAt(0).toUpperCase()}
-      </div>
+        <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">
+          {chat.name.charAt(0).toUpperCase()}
+        </div>
 
-      <span>{chat.name}</span>
-    </label>
-  ))}
+        <span>{chat.name}</span>
+      </label>
+    ))}
 </div>
 
       <div className="flex justify-end gap-2">

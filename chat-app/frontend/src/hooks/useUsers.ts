@@ -41,18 +41,20 @@ export default function useUsers({ userId, selectedChat, setSelectedChat, setCha
       })
     );
 
-    setChats(chats);
+    setChats((prev: any) => {
+      const groupChats = prev.filter((chat: any) => chat.isGroup);
+      const combinedChats = [...groupChats, ...chats];
 
-    if (chats.length > 0) {
-      if (
-        selectedChat !== null &&
-        chats.some((chat) => chat.id === selectedChat)
-      ) {
-        setSelectedChat(selectedChat);
-      } else {
-        setSelectedChat(chats[0].id);
+      if (combinedChats.length > 0) {
+        if (selectedChat === null) {
+          setSelectedChat(combinedChats[0].id);
+        } else if (combinedChats.some((chat) => chat.id === selectedChat)) {
+          setSelectedChat(selectedChat);
+        }
       }
-    }
+
+      return combinedChats;
+    });
   } catch (err) {
     console.log("Error fetching users:", err);
   }
