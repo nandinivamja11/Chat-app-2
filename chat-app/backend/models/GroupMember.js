@@ -1,25 +1,17 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
+const Group = require("./Group");
+const User = require("./User");
 
-const GroupMember = sequelize.define(
-    "GroupMember",
-    {
-        id:{
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        groupId:{
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        userId:{
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-    },
-    {
-        timestamps: true,
-    }
-);
+const GroupMember = sequelize.define("GroupMember", {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+});
+
+Group.belongsToMany(User, { through: GroupMember });
+User.belongsToMany(Group, { through: GroupMember });
+
 module.exports = GroupMember;

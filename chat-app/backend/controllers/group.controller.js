@@ -1,8 +1,12 @@
-const { Group, GroupMember } = require("../models");
+const { Group } = require("../models/Group");
+const { GroupMember } = require("../models/GroupMember");
 
 exports.createGroup = async (req, res) => {
-    try{
-        const{ name, members } = req.body;
+    try {
+        console.log("BODY:", req.body);
+        console.log("USER:", req.user);
+
+        const { name, members } = req.body;
         const createdBy = req.user.id;
 
         if(!name || !members || members.length < 2){
@@ -11,8 +15,11 @@ exports.createGroup = async (req, res) => {
             });
         }
         const group = await Group.create({
-            name, createdBy,
+          Name,
+          createdBy,
         });
+        console.log("GROUP:", group);
+
         const allMembers = [...new Set([createdBy, ...members])];
         for(const userId of allMembers){
             await GroupMember.create({
