@@ -1,21 +1,3 @@
-// import api from "./api";
-
-// export const createGroup = async (
-//   groupName: string,
-//   members: number[]
-// ) => {
-//   const res = await api.post("/group/create", {
-//     groupName,
-//     members,
-//   });
-
-//   return res.data;
-// };
-
-// export const getMyGroups = async () => {
-//   const res = await api.get("/group/my-groups");
-//   return res.data;
-// };
 import api from "./api";
 
 export const createGroup = async (
@@ -37,5 +19,10 @@ export const createGroup = async (
 
 export const getMyGroups = async () => {
   const res = await api.get("/group/my-groups");
+  return res.data;
+};
+
+export const getGroupMessages = async (groupId: number) => {
+  const res = await api.get(`/group/messages/${groupId}`);
   return res.data;
 };

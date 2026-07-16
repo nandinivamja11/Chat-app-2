@@ -5,6 +5,7 @@ import { Message } from "../types/chat.types";
 export default function useSendMessage({
   userId,
   selectedChat,
+  currentChat,
   message,
   setMessage,
   setMessages,
@@ -36,23 +37,30 @@ export default function useSendMessage({
     );
 
     try {
-      const res = await api.post("/message/send", {
-        receiver: selectedChat,
-        message,
-      });
+      if (currentChat?.isGroup) {
 
-      const savedMessage = res.data.data;
+  const res = await api.post("/group/message", {
+    groupId: selectedChat,
+    message,
+  });
 
-      socket.emit("send_message", {
-        sender: savedMessage.sender,
-        receiver: savedMessage.receiver,
-        text: savedMessage.message,
-        type: savedMessage.type,
-        fileUrl: savedMessage.fileUrl,
-        fileName: savedMessage.fileName,
-        createdAt: savedMessage.createdAt,
-      });
+  socket.emit("send_group_message", res.data);
 
+} else {
+
+  const res = await api.post("/message/send", {
+    receiver: selectedChat,
+    message,
+  });
+
+  socket.emit("send_message", {
+    sender: res.data.data.sender,
+    receiver: res.data.data.receiver,
+    text: res.data.data.message,
+    createdAt: res.data.data.createdAt,
+  });
+
+}
     } catch (err) {
       console.error("Message save failed:", err);
     }

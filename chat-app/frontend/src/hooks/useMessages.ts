@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { getConversation } from "../services/chat.service";
+import { getGroupMessages } from "../services/group.service";
 import { markSeen } from "../services/message.service";
-import { group } from "node:console";
 
-export default function useMessages({ selectedChat, setMessages, setChats, loadUnread,
+
+export default function useMessages({ selectedChat, setMessages, currentChat, setChats, loadUnread,
 }: any) {
 
   const loadMessages = async () => {
@@ -14,12 +15,22 @@ export default function useMessages({ selectedChat, setMessages, setChats, loadU
 
     try {
 
-      const data = await getConversation(selectedChat);
+      let data;
+
+if (currentChat?.isGroup) {
+
+  data = await getGroupMessages(selectedChat);
+
+} else {
+
+  data = await getConversation(selectedChat);
+
+}
 
       const formattedMessages = data.map((msg: any) => ({
         id: msg.id,
-        sender: msg.sender,
-        receiver: msg.receiver,
+        sender: msg.sender || msg.senderId,
+        receiver: msg.receiver || null,
         text: msg.message,
         type: msg.type,
         fileUrl: msg.fileUrl,

@@ -1,6 +1,7 @@
 import api from "../services/api";
 import { useEffect } from "react";
 import { getUsers,} from "../services/chat.service";
+import { getMyGroups } from "../services/group.service";
 
 export default function useUsers({ userId, selectedChat, setSelectedChat, setChats,
 }: any) {

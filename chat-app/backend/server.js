@@ -106,6 +106,32 @@ const onlineUsers = new Map();
     console.log("Socket error:", error);
   }
 });
+const GroupMember = require("./models/GroupMember");
+
+socket.on("send_group_message", async (data) => {
+
+    const members = await GroupMember.findAll({
+        where:{
+            groupId:data.groupId,
+        },
+    });
+
+    members.forEach(member=>{
+
+        const socketId = onlineUsers.get(Number(member.userId));
+
+        if(socketId){
+
+            io.to(socketId).emit(
+                "receive_group_message",
+                data
+            );
+
+        }
+
+    });
+
+});
 
       // DISCONNECT CLEANUP
       socket.on("disconnect", () => {

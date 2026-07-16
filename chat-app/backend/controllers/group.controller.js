@@ -1,6 +1,7 @@
 const Group = require("../models/Group");
 const GroupMember = require("../models/GroupMember");
 const User = require("../models/User");
+const GroupMessage = require("../models/GroupMessage");
 exports.createGroup = async (req, res) => {
     try {
         console.log("BODY:", req.body);
@@ -68,4 +69,30 @@ exports.getMyGroups = async (req, res) => {
       message: "Server Error",
     });
   }
+};
+
+exports.sendGroupMessage = async (req, res) => {
+  const { groupId, message, type, fileUrl, fileName } = req.body;
+
+  const msg = await GroupMessage.create({
+    groupId,
+    senderId: req.user.id,
+    message,
+    type: type || "text",
+    fileUrl,
+    fileName,
+  });
+
+  res.json(msg);
+};
+
+exports.getGroupMessages = async (req, res) => {
+  const messages = await GroupMessage.findAll({
+    where: {
+      groupId: req.params.groupId,
+    },
+    order: [["createdAt", "ASC"]],
+  });
+
+  res.json(messages);
 };
