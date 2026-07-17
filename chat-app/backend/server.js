@@ -13,7 +13,7 @@ const authRoutes = require("./routes/authRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const profileRoutes = require("./routes/profileRotes");
 const messageRoutes = require("./routes/messageRoutes");
-
+const User = require("./models/User");
 const Message = require("./models/Message");
 
 const app = express();
@@ -90,7 +90,7 @@ const onlineUsers = new Map();
        fileName: data.fileName || null,
        createdAt: data.createdAt,
       };
-
+    
     const receiverSocketId = onlineUsers.get(payload.receiver);
     const senderSocketId = onlineUsers.get(payload.sender);
 
@@ -110,27 +110,28 @@ const GroupMember = require("./models/GroupMember");
 
 socket.on("send_group_message", async (data) => {
 
+    const sender = await User.findByPk(data.senderId, {
+        attributes: ["id", "username"],
+    });
+
+    const payload = {
+        ...data,
+        senderName: sender?.username,
+    };
+
     const members = await GroupMember.findAll({
-        where:{
-            groupId:data.groupId,
+        where: {
+            groupId: data.groupId,
         },
     });
 
-    members.forEach(member=>{
-
+    members.forEach(member => {
         const socketId = onlineUsers.get(Number(member.userId));
 
-        if(socketId){
-
-            io.to(socketId).emit(
-                "receive_group_message",
-                data
-            );
-
+        if (socketId) {
+            io.to(socketId).emit("receive_group_message", payload);
         }
-
     });
-
 });
 
       // DISCONNECT CLEANUP

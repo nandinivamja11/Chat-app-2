@@ -1,4 +1,4 @@
-function MessageBubble({ text, sender, time, type, fileUrl, fileName }: any) {
+function MessageBubble({ text, sender, senderName, time, type, fileUrl, fileName }: any) {
   const isMe = sender === "me";
   const filePath = fileUrl
   ? `http://localhost:5000${fileUrl}`
@@ -36,7 +36,14 @@ function MessageBubble({ text, sender, time, type, fileUrl, fileName }: any) {
     📄 {fileName}
   </a>
 ) : (
+  <>
+  {!isMe && senderName && (
+    <p className="text-xs font-semibold text-blue-600 mb-1">
+      {senderName}
+    </p>
+  )}
   <p>{text}</p>
+</>
 )}
         <p className="text-xs mt-1 opacity-70 text-right">{time}</p>
       </div>

@@ -3,33 +3,23 @@ import { getConversation } from "../services/chat.service";
 import { getGroupMessages } from "../services/group.service";
 import { markSeen } from "../services/message.service";
 
-
 export default function useMessages({ selectedChat, setMessages, currentChat, setChats, loadUnread,
 }: any) {
-
   const loadMessages = async () => {
-
     if (selectedChat === null) return;
-
     setMessages([]);
-
     try {
-
-      let data;
-
+      let data;                   
 if (currentChat?.isGroup) {
-
   data = await getGroupMessages(selectedChat);
-
 } else {
-
   data = await getConversation(selectedChat);
-
 }
 
       const formattedMessages = data.map((msg: any) => ({
         id: msg.id,
         sender: msg.sender || msg.senderId,
+        senderName: msg.senderName || msg.Sender?.username,
         receiver: msg.receiver || null,
         text: msg.message,
         type: msg.type,

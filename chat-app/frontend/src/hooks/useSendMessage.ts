@@ -44,7 +44,10 @@ export default function useSendMessage({
     message,
   });
 
-  socket.emit("send_group_message", res.data);
+  socket.emit("send_group_message", {
+  ...res.data,
+  senderName: localStorage.getItem("username"),
+});
 
 } else {
 

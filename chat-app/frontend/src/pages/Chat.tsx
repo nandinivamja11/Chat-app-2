@@ -117,6 +117,7 @@ const handleReceive = (data: any) => {
       const msg = {
         sender: data.sender,
         receiver: data.receiver,
+        senderName: data.senderName,
         text: data.text,
         type: data.type,
         fileUrl: data.fileUrl,
@@ -177,6 +178,7 @@ const handleReceive = (data: any) => {
               key={i}
               text={msg.text}
               sender={msg.sender === userId ? "me" : "other"}
+              senderName={msg.senderName}
               time={msg.time}
               type={msg.type}
               fileUrl={msg.fileUrl}
