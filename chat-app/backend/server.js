@@ -130,6 +130,11 @@ socket.on("send_group_message", async (data) => {
 
         if (socketId) {
             io.to(socketId).emit("receive_group_message", payload);
+            if (Number(member.userId) !== Number(data.senderId)) {
+            io.to(socketId).emit("group_unread_updated", {
+                groupId: data.groupId,
+            });
+          }
         }
     });
 });

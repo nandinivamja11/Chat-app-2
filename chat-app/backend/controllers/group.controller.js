@@ -1,7 +1,8 @@
-const Group = require("../models/Group");
-const GroupMember = require("../models/GroupMember");
-const User = require("../models/User");
-const GroupMessage = require("../models/GroupMessage");
+// const Group = require("../models/Group");
+// const GroupMember = require("../models/GroupMember");
+// const User = require("../models/User");
+// const GroupMessage = require("../models/GroupMessage");
+const { User, Group, GroupMember, GroupMessage } = require("../models");
 exports.createGroup = async (req, res) => {
     try {
         console.log("BODY:", req.body);
@@ -50,15 +51,14 @@ exports.getMyGroups = async (req, res) => {
 
     const groups = await Group.findAll({
        include: [
-        {
-          model: GroupMember,
-          as: "Members",
-          where: {
-            userId: userId,
-          },
-          include: [User],
-        },
-      ],
+  {
+    model: GroupMessage,
+    as: "Messages",
+    limit: 1,
+    separate: true,
+    order: [["createdAt", "DESC"]],
+  },
+],
     });
 
     res.json(groups);
@@ -81,18 +81,76 @@ exports.sendGroupMessage = async (req, res) => {
     type: type || "text",
     fileUrl,
     fileName,
+    isSeen: false,
   });
 
   res.json(msg);
 };
 
 exports.getGroupMessages = async (req, res) => {
-  const messages = await GroupMessage.findAll({
-    where: {
-      groupId: req.params.groupId,
-    },
-    order: [["createdAt", "ASC"]],
-  });
+  try {
+    const messages = await GroupMessage.findAll({
+      where: {
+        groupId: req.params.groupId,
+      },
+      include: [
+        {
+          model: User,
+          as: "Sender",
+          attributes: ["id", "username"],
+        },
+      ],
+      order: [["createdAt", "ASC"]],
+    });
 
-  res.json(messages);
+    res.json(messages);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+exports.markGroupSeen = async (req, res) => {
+  try {
+    await GroupMessage.update(
+      { isSeen: true },
+      {
+        where: {
+          groupId: req.params.groupId,
+          senderId: {
+            [Op.ne]: req.user.id,
+          },
+          isSeen: false,
+        },
+      }
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+exports.getGroupUnreadCounts = async (req, res) => {
+  try {
+    const myId = req.user.id;
+
+    const unread = await GroupMessage.findAll({
+      where: {
+        senderId: {
+          [Op.ne]: myId,
+        },
+        isSeen: false,
+      },
+      attributes: [
+        "groupId",
+        [sequelize.fn("COUNT", sequelize.col("id")), "count"],
+      ],
+      group: ["groupId"],
+    });
+
+    res.json(unread);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };

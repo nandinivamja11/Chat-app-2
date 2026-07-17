@@ -37,6 +37,10 @@ const GroupMessage = sequelize.define(
     fileName: {
       type: DataTypes.STRING,
     },
+    isSeen: {
+  type: DataTypes.BOOLEAN,
+  defaultValue: false,
+},
   },
   {
     timestamps: true,

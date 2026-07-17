@@ -9,5 +9,7 @@ router.get("/my-groups", authMiddleware, groupController.getMyGroups);
 
 router.post("/message", authMiddleware, groupController.sendGroupMessage);
 router.get("/messages/:groupId", authMiddleware, groupController.getGroupMessages);
+router.put("/seen/:groupId", authMiddleware, groupController.markGroupSeen);
+router.get("/messages/:groupId", authMiddleware, groupController.getGroupMessages);
 
 module.exports = router;   

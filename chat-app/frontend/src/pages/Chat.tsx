@@ -25,9 +25,12 @@ function Chat() {
       isGroup: true,
       avatar: g.groupImage || "",
       members: g.Members || [],
-      lastMessage: "",
-      unreadCount: 0,
-    }));
+      lastMessage:
+    g.Messages?.length > 0
+      ? g.Messages[0].message
+      : "",
+  unreadCount: 0,
+}));
 
     setChats((prev: any) => {
       const personalChats = prev.filter((c: any) => !c.isGroup);
@@ -109,6 +112,37 @@ useEffect(() => {
 }, []);
 
 const handleReceive = (data: any) => {
+  // ===== Group Message =====
+if (data.groupId) {
+  if (currentChat?.isGroup && currentChat.id === data.groupId) {
+    const msg = {
+      sender: data.senderId,
+      senderName: data.senderName,
+      text: data.message,
+      type: data.type,
+      fileUrl: data.fileUrl,
+      fileName: data.fileName,
+      time: new Date(data.createdAt).toLocaleTimeString(),
+    };
+
+    setMessages((prev) => [...prev, msg]);
+  }
+
+  setChats((prev) =>
+    prev.map((chat) =>
+      chat.isGroup && chat.id === data.groupId
+        ? {
+            ...chat,
+            lastMessage:
+              data.message ||
+              (data.fileName ? `📎 ${data.fileName}` : "Attachment"),
+          }
+        : chat
+    )
+  );
+
+  return;
+}
    if (
       (data.sender === selectedChat && data.receiver === userId) ||
       (data.sender === userId && data.receiver === selectedChat)
