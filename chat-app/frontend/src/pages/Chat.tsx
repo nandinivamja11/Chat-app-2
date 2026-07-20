@@ -107,9 +107,9 @@ useUsers({ userId, selectedChat, setSelectedChat, setChats, });
   }
 };
 
-useEffect(() => {
-  fetchGroups();
-}, []);
+// useEffect(() => {
+//   fetchGroups();
+// }, []);
 
 const handleReceive = (data: any) => {
   // ===== Group Message =====
@@ -185,9 +185,11 @@ if (data.groupId) {
   });
 
           const chatsWithUnread = chats.map(chat => ({
-          ...chat,
-          unreadCount: unreadCounts[chat.id] || undefined,
-        }));
+  ...chat,
+  unreadCount: chat.isGroup
+    ? unreadCounts[`group-${chat.id}`]
+    : unreadCounts[`user-${chat.id}`],
+}));
 
   return (
     <div className="h-screen flex bg-[#f0f2f5]">

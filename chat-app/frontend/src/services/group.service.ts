@@ -26,3 +26,8 @@ export const getGroupMessages = async (groupId: number) => {
   const res = await api.get(`/group/messages/${groupId}`);
   return res.data;
 };
+
+export const getGroupUnreadCounts = async () => {
+  const res = await api.get("/group/unread");
+  return res.data;
+};

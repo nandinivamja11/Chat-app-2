@@ -3,6 +3,8 @@
 // const User = require("../models/User");
 // const GroupMessage = require("../models/GroupMessage");
 const { User, Group, GroupMember, GroupMessage } = require("../models");
+const { Op } = require("sequelize");
+const sequelize = require("../config/db");
 exports.createGroup = async (req, res) => {
     try {
         console.log("BODY:", req.body);
@@ -131,9 +133,10 @@ exports.markGroupSeen = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 exports.getGroupUnreadCounts = async (req, res) => {
   try {
-    const myId = req.user.id;
+    const myId = Number(req.user.id);
 
     const unread = await GroupMessage.findAll({
       where: {
@@ -142,15 +145,21 @@ exports.getGroupUnreadCounts = async (req, res) => {
         },
         isSeen: false,
       },
+
       attributes: [
         "groupId",
         [sequelize.fn("COUNT", sequelize.col("id")), "count"],
       ],
+
       group: ["groupId"],
     });
 
     res.json(unread);
+
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.log(err);
+    res.status(500).json({
+      message: err.message,
+    });
   }
 };

@@ -12,6 +12,7 @@ export default function useUsers({ userId, selectedChat, setSelectedChat, setCha
     );
 
     const chats = await Promise.all(
+
       users.map(async (user: any) => {
         try {
           const res = await api.get(`/message/conversation/${user.id}`);

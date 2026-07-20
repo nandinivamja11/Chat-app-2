@@ -35,7 +35,7 @@ export default function useSocket({
     socket.on("receive_group_message", onReceive);
 
     socket.on("unread_updated", loadUnread);
-    // socket.on("group_unread_updated", loadGroupUnread);
+    socket.on("group_unread_updated", loadUnread);
 
     socket.on("messages_seen", loadUnread);
 
@@ -49,7 +49,7 @@ export default function useSocket({
       socket.off("receive_group_message", onReceive);
 
       socket.off("unread_updated", loadUnread);
-      // socket.off("group_unread_updated", loadGroupUnread);
+      socket.off("group_unread_updated", loadUnread);
 
       socket.off("messages_seen", loadUnread);
 

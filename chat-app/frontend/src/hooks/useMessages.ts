@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { getConversation } from "../services/chat.service";
 import { getGroupMessages } from "../services/group.service";
 import { markSeen } from "../services/message.service";
+import api from "../services/api";
 
 export default function useMessages({ selectedChat, setMessages, currentChat, setChats, loadUnread,
 }: any) {
@@ -12,6 +13,8 @@ export default function useMessages({ selectedChat, setMessages, currentChat, se
       let data;                   
 if (currentChat?.isGroup) {
   data = await getGroupMessages(selectedChat);
+  await api.put(`/group/seen/${selectedChat}`);
+loadUnread();
 } else {
   data = await getConversation(selectedChat);
 }
