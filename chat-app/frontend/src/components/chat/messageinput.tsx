@@ -84,8 +84,9 @@ function MessageInput({
           <div className="absolute bottom-12 left-0 z-50">
             <EmojiPicker
               onEmojiClick={handleEmojiClick}
-              width={320}
-              height={420}
+              emojiVersion="13.1"
+              width={420}
+              height={400}
             />
           </div>
         )}
@@ -98,7 +99,10 @@ function MessageInput({
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={handleKeyDown}
         className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
+style={{
+  fontFamily:
+    '"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji","Segoe UI",sans-serif',
+}}/>
 
       <button
         type="button"

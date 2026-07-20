@@ -10,7 +10,8 @@ export type Message = {
 };
 
 export type Chat = {
-  id: number;
+  id: number | string;
+  groupId?: number;
   name: string;
   messages: Message[];
   unreadCount?: number;

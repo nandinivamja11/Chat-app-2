@@ -75,11 +75,17 @@ function Profile() {
       await updateProfile(formData);
 
       alert("Profile Updated Successfully!");
+      navigate("/chat");
     } catch (err) {
       console.error(err);
       alert("Unable to update profile");
     }
   };
+  const [notifications, setNotifications] =
+useState(true);
+
+const [darkMode, setDarkMode] =
+useState(false);
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center items-center p-4">
@@ -96,22 +102,18 @@ function Profile() {
           />
 
           <label className="mt-4 cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition">
-
             Edit Photo
-
             <input
               type="file"
               accept="image/*"
               onChange={handleImageChange}
               className="hidden"
             />
-
           </label>
 
           <h2 className="text-2xl font-bold mt-4">
             My Profile
           </h2>
-
         </div>
 
         {/* Form */}
@@ -119,11 +121,9 @@ function Profile() {
 
           {/* Name */}
           <div>
-
             <label className="block mb-1 font-medium">
               Name
             </label>
-
             <input
               type="text"
               value={name}
@@ -135,7 +135,6 @@ function Profile() {
 
           {/* Email */}
           <div>
-
             <label className="block mb-1 font-medium">
               Email
             </label>
@@ -146,12 +145,10 @@ function Profile() {
               disabled
               className="w-full border rounded-lg px-4 py-2 bg-gray-100 cursor-not-allowed"
             />
-
           </div>
 
           {/* Bio */}
           <div>
-
             <label className="block mb-1 font-medium">
               Bio
             </label>
@@ -164,13 +161,65 @@ function Profile() {
             />
 
           </div>
+          <div className="border-t pt-6 mt-6">
+
+  <h3 className="text-lg font-semibold mb-4">
+    Account
+  </h3>
+
+{/* change password */}
+  <button
+    onClick={() => navigate("../pages/ChangePassword.tsx")}
+    className="w-full flex justify-between items-center border rounded-lg px-4 py-3 hover:bg-gray-100"
+  >
+    <span>🔒 Change Password</span>
+    <span>›</span>
+  </button>
+
+</div>
+
+{/* notifications */}
+<div className="mt-4 flex justify-between border rounded-lg px-4 py-3">
+  <span>🔔 Notifications</span>
+
+  <input
+    type="checkbox"
+    checked={notifications}
+    onChange={() =>
+      setNotifications(!notifications)
+    }
+  />
+
+</div>
+
+{/* dark mode */}
+<div className="mt-4 flex justify-between border rounded-lg px-4 py-3">
+
+  <span>🌙 Dark Mode</span>
+
+  <input
+    type="checkbox"
+    checked={darkMode}
+    onChange={() =>
+      setDarkMode(!darkMode)
+    }
+  />
+</div>
+
+{/* logout */}
+<button
+  onClick={() => {
+    localStorage.clear();
+    navigate("/");
+  }}
+  className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition"
+>Logout</button>
 
           {/* Save */}
           <button
             onClick={handleSave}
             className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg transition"
-          >
-            Save Changes
+          > Save Changes
           </button>
 
           {/* Chat */}

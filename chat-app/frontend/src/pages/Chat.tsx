@@ -11,16 +11,20 @@ import useSendMessage from "../hooks/useSendMessage";
 import useUsers from "../hooks/useUsers";
 import useUnread from "../hooks/useUnread";
 import { createGroup, getMyGroups } from "../services/group.service";
+import SettingsModal from "../components/chat/SettingsModal";
 
 function Chat() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [groupName, setGroupName] = useState("");
+  const [showSettings, setShowSettings] = useState(false);
+  
   const fetchGroups = async () => {
   try {
     const groups = await getMyGroups();
      console.log("MY GROUPS:", groups);
     const formattedGroups = groups.map((g: any) => ({
-      id: g.id,
+      id: `group-${g.id}`,
+      groupId: g.id,
       name: g.groupName,
       isGroup: true,
       avatar: g.groupImage || "",
@@ -62,6 +66,9 @@ const { handleSend } = useSendMessage({ userId, selectedChat, message, currentCh
 
 useMessages({ selectedChat, currentChat, setMessages, setChats, loadUnread,});
 useUsers({ userId, selectedChat, setSelectedChat, setChats, });
+console.log("CHATS:", chats);
+console.log("CURRENT:", currentChat);
+console.log("SELECTED:", selectedChat);
 
   const handleSelectChat = (id: number) => {
     setSelectedChat(id);
@@ -107,9 +114,11 @@ useUsers({ userId, selectedChat, setSelectedChat, setChats, });
   }
 };
 
-// useEffect(() => {
-//   fetchGroups();
-// }, []);
+useEffect(() => {
+  if (chats.length > 0) {
+    fetchGroups();
+  }
+}, [chats.length]);
 
 const handleReceive = (data: any) => {
   // ===== Group Message =====
@@ -130,7 +139,7 @@ if (data.groupId) {
 
   setChats((prev) =>
     prev.map((chat) =>
-      chat.isGroup && chat.id === data.groupId
+      chat.isGroup && chat.groupId === data.groupId
         ? {
             ...chat,
             lastMessage:
@@ -199,7 +208,13 @@ if (data.groupId) {
         selectedChat={selectedChat}
         setSelectedChat={setSelectedChat}
         onCreateGroup={() => setShowCreateGroup(true)}
+        setShowSettings={setShowSettings}
       />
+        {showSettings && (
+      <SettingsModal
+        onClose={() => setShowSettings(false)}
+      />
+    )}
 
       <div className="flex-1 flex flex-col">
 

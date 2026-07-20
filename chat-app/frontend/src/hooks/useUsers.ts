@@ -42,21 +42,25 @@ export default function useUsers({ userId, selectedChat, setSelectedChat, setCha
         }
       })
     );
+    setChats((prev: any) => {
+  const groupChats = prev.filter((chat: any) => chat.isGroup);
+  return [...groupChats, ...chats];
+});
 
-      setChats((prev: any) => {
-      const groupChats = prev.filter((chat: any) => chat.isGroup);
-      const combinedChats = [...groupChats, ...chats];
+    //   setChats((prev: any) => {
+    //   const groupChats = prev.filter((chat: any) => chat.isGroup);
+    //   const combinedChats = [...groupChats, ...chats];
 
-      if (combinedChats.length > 0) {
-        if (selectedChat === null) {
-          setSelectedChat(combinedChats[0].id);
-        } else if (combinedChats.some((chat) => chat.id === selectedChat)) {
-          setSelectedChat(selectedChat);
-        }
-      }
+    //   if (combinedChats.length > 0) {
+    //     if (selectedChat === null) {
+    //       setSelectedChat(combinedChats[0].id);
+    //     } else if (combinedChats.some((chat) => chat.id === selectedChat)) {
+    //       setSelectedChat(selectedChat);
+    //     }
+    //   }
 
-      return combinedChats;
-    });
+    //   return combinedChats;
+    // });
   } catch (err) {
     console.log("Error fetching users:", err);
   }

@@ -42,7 +42,15 @@ function MessageBubble({ text, sender, senderName, time, type, fileUrl, fileName
       {senderName}
     </p>
   )}
-  <p>{text}</p>
+  <p
+  className="break-words whitespace-pre-wrap"
+  style={{
+    fontFamily:
+      '"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji","Segoe UI",sans-serif',
+  }}
+>
+  {text}
+</p>
 </>
 )}
         <p className="text-xs mt-1 opacity-70 text-right">{time}</p>

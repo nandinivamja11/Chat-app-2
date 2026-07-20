@@ -40,9 +40,9 @@ export default function useSendMessage({
       if (currentChat?.isGroup) {
 
   const res = await api.post("/group/message", {
-    groupId: selectedChat,
-    message,
-  });
+  groupId: currentChat.groupId,
+  message,
+});
 
   socket.emit("send_group_message", {
   ...res.data,

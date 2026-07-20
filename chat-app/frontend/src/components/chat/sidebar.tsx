@@ -1,4 +1,4 @@
-import { Users } from "lucide-react";
+import { Users, Settings } from "lucide-react";
 import { Chat } from "../../types/chat.types";
 
 type SidebarProps = {
@@ -6,6 +6,7 @@ type SidebarProps = {
   selectedChat: number | null;
   setSelectedChat: (id: number) => void;
   onCreateGroup: () => void;
+  setShowSettings: (value: boolean) => void;
 };
 
 function Sidebar({
@@ -13,21 +14,60 @@ function Sidebar({
   selectedChat,
   setSelectedChat,
   onCreateGroup,
+  setShowSettings,
 }: SidebarProps) {
   return (
     <div className="w-80 h-screen bg-white border-r flex flex-col">
 
       {/* Header */}
-      <div className="p-4 border-b flex items-center justify-between">
-  <h2 className="text-xl font-bold">Chats</h2>
+      <div className="p-4 border-b">
 
-  <button
-    onClick={onCreateGroup}
-    className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition"
-  >
-    <Users size={18} />
-    Group
-  </button>
+  {/* Profile */}
+  <div className="flex items-center justify-between mb-4">
+
+    <div className="flex items-center gap-3">
+
+      <div className="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg">
+        {(localStorage.getItem("username") || "U")
+          .charAt(0)
+          .toUpperCase()}
+      </div>
+
+      <div>
+        <p className="font-semibold">
+          {localStorage.getItem("username")}
+        </p>
+
+        <p className="text-xs text-gray-500">
+          My Profile
+        </p>
+      </div>
+
+    </div>
+
+<button
+  onClick={() => setShowSettings(true)}
+  className="p-2 rounded-full hover:bg-gray-100"
+>
+  <Settings size={20} />
+</button>
+
+  </div>
+
+  {/* Chats + Group Button */}
+  <div className="flex items-center justify-between">
+    <h2 className="text-xl font-bold">
+      Chats
+    </h2>
+
+    <button
+      onClick={onCreateGroup}
+      className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition"
+    >
+      <Users size={18} />
+      Group
+    </button>
+  </div>
 </div>
 
       {/* Chat list */}

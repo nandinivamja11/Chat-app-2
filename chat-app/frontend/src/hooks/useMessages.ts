@@ -12,8 +12,8 @@ export default function useMessages({ selectedChat, setMessages, currentChat, se
     try {
       let data;                   
 if (currentChat?.isGroup) {
-  data = await getGroupMessages(selectedChat);
-  await api.put(`/group/seen/${selectedChat}`);
+  data = await getGroupMessages(currentChat.groupId);
+await api.put(`/group/seen/${currentChat.groupId}`);
 loadUnread();
 } else {
   data = await getConversation(selectedChat);

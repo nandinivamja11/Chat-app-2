@@ -1,1 +1,10 @@
 @import "tailwindcss";
+body {
+  font-family:
+    "Segoe UI",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol",
+    "Apple Color Emoji",
+    "Noto Color Emoji",
+    sans-serif;
+}
