@@ -169,7 +169,7 @@ useState(false);
 
 {/* change password */}
   <button
-    onClick={() => navigate("../pages/ChangePassword.tsx")}
+    onClick={() => navigate("/change-password")}
     className="w-full flex justify-between items-center border rounded-lg px-4 py-3 hover:bg-gray-100"
   >
     <span>🔒 Change Password</span>

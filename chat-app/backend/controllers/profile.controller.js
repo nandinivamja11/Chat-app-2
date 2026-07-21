@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const bcrypt = require("bcrypt");
 
 // Get Profile
 exports.getprofile = async (req, res) => {
@@ -61,3 +62,33 @@ exports.updateProfile = async (req, res) => {
     });
   }
 };
+
+
+exports.changePassword = async (req,res)=>{
+
+const {currentPassword,newPassword}=req.body;
+
+const user=await User.findByPk(req.user.id);
+
+const match=await bcrypt.compare(
+currentPassword,
+user.password
+);
+
+if(!match){
+ return res.status(400).json({
+   message:"Current password is incorrect"
+ });
+}
+
+const hashed=await bcrypt.hash(newPassword,10);
+
+user.password=hashed;
+
+await user.save();
+
+res.json({
+ message:"Password changed successfully"
+});
+
+}

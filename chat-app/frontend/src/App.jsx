@@ -4,7 +4,7 @@ import Chat from "./pages/Chat";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import VerifyOTP from "./pages/VerifyOTP";
-
+import ChangePassword from "./pages/ChangePassword";
 
 function App() {
   return (
@@ -14,6 +14,7 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/verify" element={<VerifyOTP />} />
+      <Route path="/change-password" element={<ChangePassword />} />
     </Routes>
   );
 }

@@ -35,7 +35,7 @@ function SettingsModal({ onClose }: any) {
           </button>
 
           <button className="w-full flex items-center gap-4 p-4 rounded-lg hover:bg-red-50 text-red-600 transition"
-          onClick={() => navigate("/login")}>
+          onClick={() => navigate("/")}>
             <LogOut size={20} />
             <span>Logout</span>
           </button>
