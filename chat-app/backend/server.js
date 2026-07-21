@@ -113,6 +113,7 @@ socket.on("send_group_message", async (data) => {
     const sender = await User.findByPk(data.senderId, {
         attributes: ["id", "username"],
     });
+    console.log("SOCKET GROUP DATA:", data);
 
     const payload = {
         ...data,

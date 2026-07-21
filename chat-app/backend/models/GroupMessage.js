@@ -37,10 +37,12 @@ const GroupMessage = sequelize.define(
 
     fileUrl: {
       type: DataTypes.STRING,
+      allowNull: true,
     },
 
     fileName: {
       type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {

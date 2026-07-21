@@ -31,3 +31,20 @@ export const getGroupUnreadCounts = async () => {
   const res = await api.get("/group/unread");
   return res.data;
 };
+export const uploadGroupFile = async (
+  groupId: number,
+  file: File
+) => {
+  const formData = new FormData();
+
+  formData.append("groupId", groupId.toString());
+  formData.append("file", file);
+
+  const res = await api.post("/group/upload", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return res.data;
+};

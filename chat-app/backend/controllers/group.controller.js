@@ -163,3 +163,52 @@ exports.getGroupUnreadCounts = async (req, res) => {
     });
   }
 };
+
+exports.uploadGroupFile = async (req, res) => {
+  try {
+    const { groupId } = req.body;
+
+    if (!groupId) {
+      return res.status(400).json({
+        message: "Group ID is required",
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        message: "No file uploaded",
+      });
+    }
+
+    let type = "file";
+
+    if (req.file.mimetype.startsWith("image")) {
+      type = "image";
+    } else if (req.file.mimetype.startsWith("video")) {
+      type = "video";
+    }
+
+    const message = await GroupMessage.create({
+      groupId,
+      senderId: req.user.id,
+      message: req.file.originalname,
+      type,
+      fileUrl: `/uploads/chat/${req.file.filename}`,
+      fileName: req.file.originalname,
+    });
+
+    const sender = await User.findByPk(req.user.id, {
+      attributes: ["id", "username"],
+    });
+
+    return res.json({
+      ...message.toJSON(),
+      senderName: sender?.username,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+};

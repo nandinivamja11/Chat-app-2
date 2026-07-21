@@ -23,8 +23,7 @@ function SettingsModal({ onClose }: any) {
         <div className="p-3">
 
           <button className="w-full flex items-center gap-4 p-4 rounded-lg hover:bg-gray-100 transition"
-            onClick={() => {onClose();
-                 navigate("/profile")}}>
+            onClick={() => {onClose(); navigate("/profile")}}>
             <User size={20} />
             <span>Edit Profile</span>
           </button>
@@ -35,7 +34,7 @@ function SettingsModal({ onClose }: any) {
           </button>
 
           <button className="w-full flex items-center gap-4 p-4 rounded-lg hover:bg-red-50 text-red-600 transition"
-          onClick={() => navigate("/")}>
+            onClick={() => navigate("/")}>
             <LogOut size={20} />
             <span>Logout</span>
           </button>

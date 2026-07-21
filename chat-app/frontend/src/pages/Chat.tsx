@@ -60,7 +60,7 @@ function Chat() {
   const currentChat = chats.find((c) => c.id === selectedChat);
   const { unreadCounts, loadUnread } = useUnread();
 
-const { handleFileSelect } = useFileUpload({ selectedChat, setMessages, setChats,});
+const { handleFileSelect } = useFileUpload({ selectedChat, currentChat, setMessages, setChats,});
 const { handleSend } = useSendMessage({ userId, selectedChat, message, currentChat, setMessage, setMessages,
   setChats,});
 
@@ -122,8 +122,11 @@ useEffect(() => {
 
 const handleReceive = (data: any) => {
   // ===== Group Message =====
-if (data.groupId) {
-  if (currentChat?.isGroup && currentChat.id === data.groupId) {
+if (data.groupId)     {
+  if (
+  currentChat?.isGroup &&
+  Number(currentChat.groupId) === Number(data.groupId)
+) { 
     const msg = {
       sender: data.senderId,
       senderName: data.senderName,
