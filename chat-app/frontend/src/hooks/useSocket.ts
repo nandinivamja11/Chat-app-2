@@ -3,7 +3,7 @@ import socket from "../socket";
 
 type Props = {
   userId: number;
-  selectedChat: number | null;
+  selectedChat: string | null;
   loadUnread: () => void;
   onReceive: (data: any) => void;
 };
@@ -26,6 +26,11 @@ export default function useSocket({
       console.log(error);
     };
 
+    const handleGroupUnread = () => {
+      console.log("GROUP UNREAD EVENT");
+    loadUnread();
+    };
+
     socket.connect();
     socket.on("connect", handleConnect);
 
@@ -35,7 +40,7 @@ export default function useSocket({
     socket.on("receive_group_message", onReceive);
 
     socket.on("unread_updated", loadUnread);
-    socket.on("group_unread_updated", loadUnread);
+    socket.on("group_unread_updated", handleGroupUnread);
 
     socket.on("messages_seen", loadUnread);
 
@@ -49,7 +54,7 @@ export default function useSocket({
       socket.off("receive_group_message", onReceive);
 
       socket.off("unread_updated", loadUnread);
-      socket.off("group_unread_updated", loadUnread);
+      socket.off("group_unread_updated", handleGroupUnread);
 
       socket.off("messages_seen", loadUnread);
 
@@ -57,6 +62,6 @@ export default function useSocket({
 
     };
 
-  }, [userId, selectedChat]);
+  }, [userId]);
 
 }

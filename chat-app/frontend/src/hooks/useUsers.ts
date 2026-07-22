@@ -27,14 +27,14 @@ export default function useUsers({ userId, selectedChat, setSelectedChat, setCha
             : "";
 
           return {
-            id: user.id,
+            id: `user-${user.id}`,
             name: user.username,
             messages: [],
             lastMessage,
           };
         } catch {
           return {
-            id: user.id,
+            id: `user-${user.id}`,
             name: user.username,
             messages: [],
             lastMessage: "",

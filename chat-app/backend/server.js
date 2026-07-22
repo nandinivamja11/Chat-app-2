@@ -66,6 +66,7 @@ const onlineUsers = new Map();
 
       // JOIN USER
       socket.on("join", (userId) => {
+        socket.join(String(userId));
   if (!userId) return;
 
   const id = Number(userId); // 🔥 IMPORTANT FIX
@@ -132,9 +133,7 @@ socket.on("send_group_message", async (data) => {
         if (socketId) {
             io.to(socketId).emit("receive_group_message", payload);
             if (Number(member.userId) !== Number(data.senderId)) {
-            io.to(socketId).emit("group_unread_updated", {
-                groupId: data.groupId,
-            });
+            io.to(socketId).emit("group_unread_updated");
           }
         }
     });

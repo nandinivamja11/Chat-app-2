@@ -74,7 +74,8 @@ exports.getMyGroups = async (req, res) => {
 };
 
 exports.sendGroupMessage = async (req, res) => {
-  const { groupId, message, type, fileUrl, fileName } = req.body;
+  try{
+  const { groupId, senderId, message, type, fileUrl, fileName } = req.body;
 
   const msg = await GroupMessage.create({
     groupId,
@@ -87,6 +88,15 @@ exports.sendGroupMessage = async (req, res) => {
   });
 
   res.json(msg);
+} catch (err) {
+  console.error(err);
+  console.error(err.message);
+  console.error(err.parent);
+  console.error(err.original);
+  return res.status(500).json({
+    error: err.message,
+  });
+ }
 };
 
 exports.getGroupMessages = async (req, res) => {

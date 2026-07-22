@@ -30,10 +30,10 @@ function Chat() {
       avatar: g.groupImage || "",
       members: g.Members || [],
       lastMessage:
-    g.Messages?.length > 0
+      g.Messages?.length > 0
       ? g.Messages[0].message
       : "",
-  unreadCount: 0,
+      unreadCount: unreadCounts[`group-${g.id}`] || 0,  
 }));
 
     setChats((prev: any) => {
@@ -47,13 +47,18 @@ function Chat() {
 };
   const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
   const userId = Number(localStorage.getItem("userId"));
-  const storedSelectedChat = Number(localStorage.getItem("selectedChat"));
+  const storedSelectedChat = localStorage.getItem("selectedChat");
+  const normalizedSelectedChat = storedSelectedChat
+    ? storedSelectedChat.startsWith("group-") || storedSelectedChat.startsWith("user-")
+      ? storedSelectedChat
+      : `user-${storedSelectedChat}`
+    : null;
 
   // 🔥 STEP 3 FIX: real users from DB
   const [chats, setChats] = useState<ChatType[]>([]);
 
-  const [selectedChat, setSelectedChat] = useState<number | null>(
-    Number.isNaN(storedSelectedChat) ? null : storedSelectedChat
+  const [selectedChat, setSelectedChat] = useState<string | null>(
+    normalizedSelectedChat
   );
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -70,9 +75,9 @@ console.log("CHATS:", chats);
 console.log("CURRENT:", currentChat);
 console.log("SELECTED:", selectedChat);
 
-  const handleSelectChat = (id: number) => {
+  const handleSelectChat = (id: string) => {
     setSelectedChat(id);
-    localStorage.setItem("selectedChat", String(id));
+    localStorage.setItem("selectedChat", id);
   };
   const toggleMember = (id: number) => {
   setSelectedMembers((prev) =>
@@ -128,7 +133,7 @@ if (data.groupId)     {
   Number(currentChat.groupId) === Number(data.groupId)
 ) { 
     const msg = {
-      sender: data.senderId,
+      sender: Number(data.senderId),
       senderName: data.senderName,
       text: data.message,
       type: data.type,
@@ -153,16 +158,24 @@ if (data.groupId)     {
     )
   );
 
+    // Refresh unread counts so the UI updates in real-time
+    loadUnread();
+
   return;
 }
+   const selectedUserId = selectedChat?.startsWith("user-")
+    ? Number(selectedChat.split("-")[1])
+    : null;
+
    if (
-      (data.sender === selectedChat && data.receiver === userId) ||
-      (data.sender === userId && data.receiver === selectedChat)
+      selectedUserId &&
+      ((data.sender === selectedUserId && data.receiver === userId) ||
+      (data.sender === userId && data.receiver === selectedUserId))
     ) {
 
       const msg = {
-        sender: data.sender,
-        receiver: data.receiver,
+        sender: Number(data.sender),
+        receiver: Number(data.receiver),
         senderName: data.senderName,
         text: data.text,
         type: data.type,
@@ -175,7 +188,7 @@ if (data.groupId)     {
 
       setChats((prev) =>
         prev.map((chat) =>
-          chat.id === data.sender || chat.id === data.receiver
+          chat.id === `user-${data.sender}` || chat.id === `user-${data.receiver}`
             ? {
                 ...chat,
                 lastMessage:
@@ -198,9 +211,7 @@ if (data.groupId)     {
 
           const chatsWithUnread = chats.map(chat => ({
   ...chat,
-  unreadCount: chat.isGroup
-    ? unreadCounts[`group-${chat.id}`]
-    : unreadCounts[`user-${chat.id}`],
+          unreadCount: unreadCounts[chat.id as string]  ,
 }));
 
   return (

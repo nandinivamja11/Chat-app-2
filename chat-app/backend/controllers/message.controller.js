@@ -38,14 +38,17 @@ exports.sendMessage = async (req, res) => {
     });
 
   } catch (err) {
-  console.error("SEND MESSAGE ERROR:");
+  console.error("SEND MESSAGE ERROR");
   console.error(err);
-  console.error(err.stack);
+  console.error(err.message);
+  console.error(err.parent);
+  console.error(err.original);
 
-    return res.status(500).json({
-      message: err.message,
-    });
-  }
+  return res.status(500).json({
+    success: false,
+    error: err.message,
+  });
+}
 };
 
 // ======================

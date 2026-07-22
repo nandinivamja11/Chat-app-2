@@ -15,42 +15,35 @@ export default function useFileUpload({ selectedChat, currentChat, setMessages, 
     if (currentChat?.isGroup) {
       msg = await uploadGroupFile(currentChat.groupId, file);
     } else {
-      const res = await uploadFile(selectedChat, file);
+      const selectedUserId = selectedChat.startsWith("user-")
+        ? Number(selectedChat.split("-")[1])
+        : null;
+      if (selectedUserId === null) return;
+      const res = await uploadFile(selectedUserId, file);
       msg = res.data;
     }
-      socket.emit("send_message", {
-        sender: msg.sender,
-        receiver: msg.receiver,
-        text: msg.message,
-        type: msg.type,
-        fileUrl: msg.fileUrl,
-        fileName: msg.fileName,
-        createdAt: msg.createdAt,
-      });if (currentChat?.isGroup) {
-
-  socket.emit("send_group_message", {
-    ...msg,
-    senderName: localStorage.getItem("username"),
-  });
-
-} else {
-
-  socket.emit("send_message", {
-    sender: msg.sender,
-    receiver: msg.receiver,
-    text: msg.message,
-    type: msg.type,
-    fileUrl: msg.fileUrl,
-    fileName: msg.fileName,
-    createdAt: msg.createdAt,
-  });
-}
+      if (currentChat?.isGroup) {
+        socket.emit("send_group_message", {
+          ...msg,
+          senderName: localStorage.getItem("username"),
+        });
+      } else {
+        socket.emit("send_message", {
+          sender: Number(msg.sender),
+          receiver: Number(msg.receiver),
+          text: msg.message,
+          type: msg.type,
+          fileUrl: msg.fileUrl,
+          fileName: msg.fileName,
+          createdAt: msg.createdAt,
+        });
+      }
 
       setMessages((prev: any) => [
         ...prev,
         {
-          sender: msg.sender,
-          receiver: msg.receiver,
+          sender: Number(msg.sender || msg.senderId),
+          receiver: msg.receiver ? Number(msg.receiver) : null,
           text: msg.message,
           type: msg.type,
           fileUrl: msg.fileUrl,
@@ -61,7 +54,14 @@ export default function useFileUpload({ selectedChat, currentChat, setMessages, 
 
       setChats((prev: any) =>
         prev.map((chat: any) =>
-          chat.id === selectedChat
+          currentChat?.isGroup
+            ? chat.groupId === currentChat.groupId
+              ? {
+                  ...chat,
+                  lastMessage: `📎 ${msg.fileName}`,
+                }
+              : chat
+            : chat.id === selectedChat
             ? {
                 ...chat,
                 lastMessage: `📎 ${msg.fileName}`,

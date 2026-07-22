@@ -57,8 +57,8 @@ console.log("GROUP RESPONSE:", res.data);
 setMessages((prev: any) => [
   ...prev,
   {
-    sender: res.data.senderId,
-    senderName: res.data.senderName,
+    sender: Number(res.data.senderId),
+    senderName: res.data.senderName || localStorage.getItem("username"),
     text: res.data.message,
     type: res.data.type,
     fileUrl: res.data.fileUrl,
@@ -82,8 +82,15 @@ setChats((prev: any) =>
 
 } else {
 
+  const selectedUserId = selectedChat?.startsWith("user-")
+    ? Number(selectedChat.split("-")[1])
+    : null;
+  if (!selectedUserId) {
+    throw new Error("Invalid private chat selected");
+  }
+
   const res = await api.post("/message/send", {
-    receiver: selectedChat,
+    receiver: selectedUserId,
     message,
   });
 
@@ -99,7 +106,9 @@ setChats((prev: any) =>
       console.error("Message save failed:", err);
     }
 
-    localStorage.setItem("selectedChat", String(selectedChat));
+    if (selectedChat) {
+      localStorage.setItem("selectedChat", selectedChat);
+    }
 
     setMessage("");
   };

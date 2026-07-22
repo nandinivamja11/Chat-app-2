@@ -3,8 +3,8 @@ import { Chat } from "../../types/chat.types";
 
 type SidebarProps = {
   chats: Chat[];
-  selectedChat: number | null;
-  setSelectedChat: (id: number) => void;
+  selectedChat: string | null;
+  setSelectedChat: (id: string) => void;
   onCreateGroup: () => void;
   setShowSettings: (value: boolean) => void;
 };
@@ -80,14 +80,14 @@ function Sidebar({
               ? chat.messages[chat.messages.length - 1].text
               : chat.lastMessage;
 
-          const chatKey = chat.isGroup ? `group-${chat.id}` : `user-${chat.id}`;
+          const chatKey = chat.id as string;
 
           return (
             <div
               key={chatKey}
-              onClick={() => setSelectedChat(chat.id)}
+              onClick={() => setSelectedChat(chat.id as string)}
               className={`flex items-center p-4 cursor-pointer border-b transition hover:bg-gray-100 ${
-                selectedChat === chat.id ? "bg-blue-100" : ""
+                selectedChat === (chat.id as string) ? "bg-blue-100" : ""
               }`}>
 
               {/* Avatar */}

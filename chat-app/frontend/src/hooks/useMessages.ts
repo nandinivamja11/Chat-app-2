@@ -10,20 +10,24 @@ export default function useMessages({ selectedChat, setMessages, currentChat, se
     if (selectedChat === null) return;
     setMessages([]);
     try {
-      let data;                   
-if (currentChat?.isGroup) {
-  data = await getGroupMessages(currentChat.groupId);
-await api.put(`/group/seen/${currentChat.groupId}`);
-loadUnread();
-} else {
-  data = await getConversation(selectedChat);
-}
+      let data;
+      if (currentChat?.isGroup) {
+        data = await getGroupMessages(currentChat.groupId);
+        await api.put(`/group/seen/${currentChat.groupId}`);
+        loadUnread();
+      } else {
+        const selectedUserId = selectedChat.startsWith("user-")
+          ? Number(selectedChat.split("-")[1])
+          : null;
+        if (selectedUserId === null) return;
+        data = await getConversation(selectedUserId);
+      }
 
       const formattedMessages = data.map((msg: any) => ({
         id: msg.id,
-        sender: msg.sender || msg.senderId,
+        sender: Number(msg.sender || msg.senderId),
         senderName: msg.senderName || msg.Sender?.username,
-        receiver: msg.receiver || null,
+        receiver: msg.receiver ? Number(msg.receiver) : null,
         text: msg.message,
         type: msg.type,
         fileUrl: msg.fileUrl,
@@ -56,9 +60,12 @@ loadUnread();
         );
       }
 
-      if (selectedChat < 1000000) {
-      await markSeen(selectedChat);
-    }
+      const selectedUserId = selectedChat.startsWith("user-")
+        ? Number(selectedChat.split("-")[1])
+        : null;
+      if (selectedUserId !== null) {
+        await markSeen(selectedUserId);
+      }
       await loadUnread();
 
     } catch (err) {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getUnreadChats } from "../services/chat.service";
 import { getGroupUnreadCounts } from "../services/group.service";
 
@@ -8,32 +8,31 @@ export default function useUnread() {
       [key: string]: number;
     }>({});
 
-   const loadUnread = async () => {
-  try {
-    const privateUnread = await getUnreadChats();
-    const groupUnread = await getGroupUnreadCounts();
+   const loadUnread = useCallback(async () => {
+    try {
+        const privateUnread = await getUnreadChats();
+        const groupUnread = await getGroupUnreadCounts();
 
-    const counts: any = {};
+        const counts: any = {};
 
-privateUnread.forEach((item: any) => {
-  counts[`user-${item.sender}`] = Number(item.count);
-});
+        privateUnread.forEach((item: any) => {
+            counts[`user-${item.sender}`] = Number(item.count);
+        });
 
-groupUnread.forEach((item: any) => {
-  counts[`group-${item.groupId}`] = Number(item.count);
-});
+        groupUnread.forEach((item: any) => {
+            counts[`group-${item.groupId}`] = Number(item.count);
+        });
 
-    setUnreadCounts(counts);
-
-  } catch (err) {
-    console.log(err);
-  }
-};
+        setUnreadCounts(counts);
+    } catch (err) {
+        console.log(err);
+    }
+}, []);
 useEffect(()=>{
 
    loadUnread();
 
-},[]);
+},[loadUnread]);
 return{
    unreadCounts,
    loadUnread,
