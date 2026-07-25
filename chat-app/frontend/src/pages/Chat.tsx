@@ -12,11 +12,13 @@ import useUsers from "../hooks/useUsers";
 import useUnread from "../hooks/useUnread";
 import { createGroup, getMyGroups } from "../services/group.service";
 import SettingsModal from "../components/chat/SettingsModal";
+import GroupInfoModal from "../components/chat/GroupInfoModal";
 
 function Chat() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [showSettings, setShowSettings] = useState(false);
+  const [showGroupInfo, setShowGroupInfo] = useState(false);
   
   const fetchGroups = async () => {
   try {
@@ -30,7 +32,7 @@ function Chat() {
       avatar: g.groupImage || "",
       members: g.Members || [],
       lastMessage:
-      g.Messages?.length > 0
+      g.Messages?.length > 0  
       ? g.Messages[0].message
       : "",
       unreadCount: unreadCounts[`group-${g.id}`] || 0,  
@@ -229,12 +231,20 @@ if (data.groupId)     {
         onClose={() => setShowSettings(false)}
       />
     )}
+    {showGroupInfo && (
+  <GroupInfoModal
+    group={currentChat}
+    onClose={() => setShowGroupInfo(false)}
+  />
+)}
 
       <div className="flex-1 flex flex-col">
 
         <ChatHeader
-        name={currentChat?.name || "Select User"}
-        isGroup={currentChat?.isGroup}
+           name={currentChat?.name || "Select User"}
+           profileImage={currentChat?.profileImage}
+           isGroup={currentChat?.isGroup}
+           onOpenGroupInfo={() => setShowGroupInfo(true)}
         />
 
         <div className="flex-1 overflow-y-auto p-6 space-y-4">

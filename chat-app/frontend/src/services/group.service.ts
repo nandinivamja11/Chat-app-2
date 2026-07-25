@@ -2,16 +2,31 @@ import api from "./api";
 
 export const createGroup = async (
   name: string,
-  members: number[]
+  members: number[],
+  groupImage?: File
 ) => {
   console.log("Sending Group Data:", {
     name,
     members,
+    groupImage
   });
 
-  const res = await api.post("/group/create", {
-    name,
-    members,
+  const formData = new FormData();
+
+  formData.append("name", name);
+
+  members.forEach((id) => {
+    formData.append("members", id.toString());
+  });
+
+  if (groupImage) {
+    formData.append("groupImage", groupImage);
+  }
+
+  const res = await api.post("/group/create", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   });
 
   return res.data;

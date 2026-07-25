@@ -14,5 +14,6 @@ router.get("/messages/:groupId", authMiddleware, getGroupMessages);
 router.put("/seen/:groupId", authMiddleware, markGroupSeen);
 router.get("/unread", authMiddleware, getGroupUnreadCounts);
 router.post("/upload", authMiddleware, chatUpload.single("file"), uploadGroupFile);
+router.put("/photo/:groupId", authMiddleware, chatUpload.single("groupImage"), updateGroupPhoto);
 
 module.exports = router;   

@@ -91,12 +91,29 @@ function Sidebar({
               }`}>
 
               {/* Avatar */}
-              <div
-                className={`w-12 h-12 rounded-full text-white flex items-center justify-center font-bold ${
-                chat.isGroup ? "bg-green-500" : "bg-blue-500"
-              }`}>
-              {chat.isGroup ? "👥" : chat.name.charAt(0).toUpperCase()}
-              </div>
+              {chat.isGroup ? (
+  chat.avatar ? (
+    <img
+      src={`http://localhost:5000${chat.avatar}`}
+      className="w-10 h-10 rounded-full object-cover"
+      alt={chat.name}
+    />
+  ) : (
+    <div className="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center">
+      👥
+    </div>
+  )
+) : chat.profileImage ? (
+  <img
+    src={`http://localhost:5000${chat.profileImage}`}
+    className="w-10 h-10 rounded-full object-cover"
+    alt={chat.name}
+  />
+) : (
+  <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center">
+    {chat.name.charAt(0).toUpperCase()}
+  </div>
+)}
 
               {/* Info */}
           <div className="ml-3 flex-1">

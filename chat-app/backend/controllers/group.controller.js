@@ -21,6 +21,7 @@ exports.createGroup = async (req, res) => {
         const group = await Group.create({
         groupName: name,
         createdBy,
+        groupImage: req.body.groupImage || null,
         });
         console.log("GROUP:", group);
 
@@ -52,21 +53,33 @@ exports.getMyGroups = async (req, res) => {
     const userId = req.user.id;
 
     const groups = await Group.findAll({
-       include: [
-  {
-    model: GroupMessage,
-    as: "Messages",
-    limit: 1,
-    separate: true,
-    order: [["createdAt", "DESC"]],
-  },
-],
-    });
+  include: [
+    {
+      model: GroupMember,
+      as: "Members",
+      include: [
+        {
+          model: User,
+          attributes: ["id", "username", "profileImage"],
+        },
+      ],
+    },
+    {
+      model: GroupMessage,
+      as: "Messages",
+      limit: 1,
+      separate: true,
+      order: [["createdAt", "DESC"]],
+    },
+  ],
+});
 
     res.json(groups);
 
   } catch (err) {
-    console.log(err);
+    console.error(err);
+    console.error(err.message);
+    console.error(err.parent);
     res.status(500).json({
       message: "Server Error",
     });

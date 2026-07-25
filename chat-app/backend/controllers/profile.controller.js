@@ -45,7 +45,7 @@ exports.updateProfile = async (req, res) => {
       username: username || user.username,
       bio: bio !== undefined ? bio : user.bio,
       profileImage: req.file
-        ? "/uploads/" + req.file.filename
+        ? "/uploads/profiles/" + req.file.filename
         : user.profileImage,
     });
 

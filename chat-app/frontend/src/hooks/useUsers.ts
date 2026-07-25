@@ -29,6 +29,7 @@ export default function useUsers({ userId, selectedChat, setSelectedChat, setCha
           return {
             id: `user-${user.id}`,
             name: user.username,
+            profileImage: user.profileImage,
             messages: [],
             lastMessage,
           };
@@ -36,8 +37,9 @@ export default function useUsers({ userId, selectedChat, setSelectedChat, setCha
           return {
             id: `user-${user.id}`,
             name: user.username,
+            profileImage: user.profileImage,
             messages: [],
-            lastMessage: "",
+            lastMessage:"",
           };
         }
       })
