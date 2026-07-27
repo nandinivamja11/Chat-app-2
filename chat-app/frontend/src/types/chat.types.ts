@@ -1,11 +1,12 @@
 export type Message = {
   id?: number;
   sender: number;
-  receiver: number;
+  receiver?: number;
   text: string | null;
   type?: string;
   fileUrl?: string;
   fileName?: string;
+  senderName?: string;
   time: string;
 };
 
@@ -17,6 +18,7 @@ export type Chat = {
   unreadCount?: number;
   lastMessage?: string;
   avatar?: string;
+  profileImage?: string;
   isOnline?: boolean;
   isGroup?: boolean;
   lastMessageTime?: string;

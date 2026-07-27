@@ -13,12 +13,12 @@ function MessageBubble({ text, sender, senderName, time, type, fileUrl, fileName
   <img
     src={filePath}
     alt={fileName}
-    className="rounded-lg max-w-[250px]"
+    className="rounded-lg max-w-62.5"
   />
 ) : type === "video" ? (
   <video
     controls
-    className="rounded-lg max-w-[250px]"
+    className="rounded-lg max-w-62.5"
   >
     <source src={filePath} />
   </video>
@@ -43,7 +43,7 @@ function MessageBubble({ text, sender, senderName, time, type, fileUrl, fileName
     </p>
   )}
   <p
-  className="break-words whitespace-pre-wrap"
+  className="wrap-break-words whitespace-pre-wrap"
   style={{
     fontFamily:
       '"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji","Segoe UI",sans-serif',

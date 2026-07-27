@@ -63,3 +63,32 @@ export const uploadGroupFile = async (
 
   return res.data;
 };
+export const updateGroupName = async (
+  groupId: number,
+  name: string
+) => {
+  const res = await api.put(`/group/name/${groupId}`, {
+    name,
+  });
+
+  return res.data;
+};
+export const updateGroupPhoto = async (
+  groupId: number,
+  file: File
+) => {
+  const formData = new FormData();
+  formData.append("groupImage", file);
+
+  const res = await api.put(
+    `/group/photo/${groupId}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return res.data;
+};

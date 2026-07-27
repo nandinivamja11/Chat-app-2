@@ -10,7 +10,17 @@ exports.createGroup = async (req, res) => {
         console.log("BODY:", req.body);
         console.log("USER:", req.user);
 
-        const { name, members } = req.body;
+        const name = req.body.name;
+
+let members = req.body.members;
+
+// Agar sirf ek member ho to string aata hai
+if (!Array.isArray(members)) {
+  members = members ? [members] : [];
+}
+
+// Number me convert karo
+members = members.map(Number);
         const createdBy = req.user.id;
 
         if(!name || !members || members.length < 2){
@@ -21,7 +31,8 @@ exports.createGroup = async (req, res) => {
         const group = await Group.create({
         groupName: name,
         createdBy,
-        groupImage: req.body.groupImage || null,
+        groupImage: req.file
+          ? `/uploads/chat/${req.file.filename}`: null,
         });
         console.log("GROUP:", group);
 
@@ -264,5 +275,35 @@ exports.updateGroupPhoto = async (req, res) => {
     return res.status(500).json({
       message: err.message,
     });
+  }
+};
+exports.updateGroupName = async (req, res) => {
+  try {
+    console.log("BODY:", req.body);
+    console.log("NAME:", req.body.name);
+
+    const { groupId } = req.params;
+    const { name } = req.body;
+
+    const group = await Group.findByPk(groupId);
+
+    if (!group) {
+      return res.status(404).json({
+        message: "Group not found",
+      });
+    }
+
+    group.groupName = name;
+
+    await group.save();
+
+    res.json({
+      success: true,
+      group,
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(err);
   }
 };

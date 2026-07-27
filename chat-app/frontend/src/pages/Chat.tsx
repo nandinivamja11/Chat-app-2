@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Sidebar from "../components/chat/Sidebar";
 import ChatHeader from "../components/chat/ChatHeader";
 import MessageBubble from "../components/chat/MessageBubble";
@@ -17,6 +17,7 @@ import GroupInfoModal from "../components/chat/GroupInfoModal";
 function Chat() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [groupName, setGroupName] = useState("");
+  
   const [showSettings, setShowSettings] = useState(false);
   const [showGroupInfo, setShowGroupInfo] = useState(false);
   
@@ -24,19 +25,23 @@ function Chat() {
   try {
     const groups = await getMyGroups();
      console.log("MY GROUPS:", groups);
-    const formattedGroups = groups.map((g: any) => ({
-      id: `group-${g.id}`,
-      groupId: g.id,
-      name: g.groupName,
-      isGroup: true,
-      avatar: g.groupImage || "",
-      members: g.Members || [],
-      lastMessage:
-      g.Messages?.length > 0  
-      ? g.Messages[0].message
-      : "",
-      unreadCount: unreadCounts[`group-${g.id}`] || 0,  
-}));
+
+    const formattedGroups = groups.map((g: any) => {
+  console.log("GROUP:", g);
+  console.log("Members:", g.Members);
+
+  return {
+    id: `group-${g.id}`,
+    groupId: g.id,
+    name: g.groupName,
+    isGroup: true,
+    avatar: g.groupImage || "",
+    members: g.Members || [],   // ✅ Correct
+    lastMessage:
+      g.Messages?.length > 0 ? g.Messages[0].message : "",
+    unreadCount: unreadCounts[`group-${g.id}`] || 0,
+  };
+});
 
     setChats((prev: any) => {
       const personalChats = prev.filter((c: any) => !c.isGroup);
@@ -64,6 +69,7 @@ function Chat() {
   );
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentChat = chats.find((c) => c.id === selectedChat);
   const { unreadCounts, loadUnread } = useUnread();
 
@@ -81,13 +87,18 @@ console.log("SELECTED:", selectedChat);
     setSelectedChat(id);
     localStorage.setItem("selectedChat", id);
   };
+  const getMemberId = (chatId: number | string) => {
+    if (typeof chatId === "number") return chatId;
+    return Number(String(chatId).replace(/^user-/, ""));
+  };
+
   const toggleMember = (id: number) => {
-  setSelectedMembers((prev) =>
-    prev.includes(id)
-      ? prev.filter((memberId) => memberId !== id)
-      : [...prev, id]
-  );
-};
+    setSelectedMembers((prev) =>
+      prev.includes(id)
+        ? prev.filter((memberId) => memberId !== id)
+        : [...prev, id]
+    );
+  };
 
   useEffect(() => {
     if (selectedChat !== null) {
@@ -165,6 +176,7 @@ if (data.groupId)     {
 
   return;
 }
+
    const selectedUserId = selectedChat?.startsWith("user-")
     ? Number(selectedChat.split("-")[1])
     : null;
@@ -202,6 +214,11 @@ if (data.groupId)     {
       );
     }
   };
+  useEffect(() => {
+  messagesEndRef.current?.scrollIntoView({
+    behavior: "smooth",
+  });
+}, [messages]);
 
   // ✅ Hook yahan call hoga
   useSocket({
@@ -242,7 +259,7 @@ if (data.groupId)     {
 
         <ChatHeader
            name={currentChat?.name || "Select User"}
-           profileImage={currentChat?.profileImage}
+           profileImage={currentChat?.isGroup ? currentChat?.avatar : currentChat?.profileImage}
            isGroup={currentChat?.isGroup}
            onOpenGroupInfo={() => setShowGroupInfo(true)}
         />
@@ -260,7 +277,8 @@ if (data.groupId)     {
               fileName={msg.fileName}
             />
           ))}
-        </div>
+        <div ref={messagesEndRef}></div>
+      </div>
 
         <MessageInput
           message={message}
@@ -270,7 +288,7 @@ if (data.groupId)     {
         />
         {showCreateGroup && (
   <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-    <div className="bg-white rounded-xl p-6 w-[400px] shadow-xl">
+    <div className="bg-white rounded-xl p-6 w-100 shadow-xl">
 
       <h2 className="text-xl font-bold mb-4">
         Create Group
@@ -292,8 +310,8 @@ if (data.groupId)     {
       >
         <input
           type="checkbox"
-          checked={selectedMembers.includes(chat.id)}
-          onChange={() => toggleMember(chat.id)}
+          checked={selectedMembers.includes(getMemberId(chat.id))}
+          onChange={() => toggleMember(getMemberId(chat.id))}
         />
 
         <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">
