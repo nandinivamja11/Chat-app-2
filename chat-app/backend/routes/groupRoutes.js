@@ -4,7 +4,7 @@ const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware");
 const chatUpload = require("../middleware/chatUpload");
 const { createGroup, getMyGroups, sendGroupMessage, getGroupMessages, markGroupSeen,
-  getGroupUnreadCounts, uploadGroupFile, } = require("../controllers/group.controller")
+  getGroupUnreadCounts, uploadGroupFile, updateGroupPhoto } = require("../controllers/group.controller")
 
 router.post("/create", authMiddleware, createGroup);
 router.get("/my-groups", authMiddleware, getMyGroups);

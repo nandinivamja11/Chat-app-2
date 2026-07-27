@@ -235,3 +235,34 @@ exports.uploadGroupFile = async (req, res) => {
     });
   }
 };
+exports.updateGroupPhoto = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    if (!req.file) {
+      return res.status(400).json({
+        message: "No image selected",
+      });
+    }
+
+    const imagePath = `/uploads/chat/${req.file.filename}`;
+
+    await Group.update(
+      { groupImage: imagePath },
+      {
+        where: {
+          id: groupId,
+        },
+      }
+    );
+
+    return res.json({
+      success: true,
+      groupImage: imagePath,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+};
