@@ -5,7 +5,7 @@ function SettingsModal({ onClose }: any) {
     const navigate = useNavigate();
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white w-[380px] rounded-xl shadow-xl">
+      <div className="bg-white w-95 rounded-xl shadow-xl">
 
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b">
@@ -13,8 +13,7 @@ function SettingsModal({ onClose }: any) {
 
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-gray-100"
-          >
+            className="p-1 rounded-full hover:bg-gray-100">
             <X size={20} />
           </button>
         </div>
@@ -28,7 +27,8 @@ function SettingsModal({ onClose }: any) {
             <span>Edit Profile</span>
           </button>
 
-          <button className="w-full flex items-center gap-4 p-4 rounded-lg hover:bg-gray-100 transition">
+          <button className="w-full flex items-center gap-4 p-4 rounded-lg hover:bg-gray-100 transition"
+            onClick={() => navigate("/change-password")}>
             <KeyRound size={20} />
             <span>Change Password</span>
           </button>

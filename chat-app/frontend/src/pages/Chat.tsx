@@ -36,7 +36,12 @@ function Chat() {
     name: g.groupName,
     isGroup: true,
     avatar: g.groupImage || "",
-    members: g.Members || [],   // ✅ Correct
+    members: (g.Members || []).map((m: any) => ({
+  id: m.id,
+  userId: m.userId,
+  username: m.User?.username,
+  profileImage: m.User?.profileImage,
+})),  
     lastMessage:
       g.Messages?.length > 0 ? g.Messages[0].message : "",
     unreadCount: unreadCounts[`group-${g.id}`] || 0,

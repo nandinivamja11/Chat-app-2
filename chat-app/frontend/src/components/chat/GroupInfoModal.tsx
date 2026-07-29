@@ -44,8 +44,7 @@ const handleSave = async () => {
 
           <button
             onClick={onClose}
-            className="text-2xl text-gray-500 hover:text-black"
-          >
+            className="text-2xl text-gray-500 hover:text-black">
             ✕
           </button>
         </div>
@@ -81,27 +80,23 @@ const handleSave = async () => {
 
           <div className="space-y-3 max-h-28 overflow-y-auto">
 
-            {group.members
-  ?.filter((member: any) => member.User)
-  .map((member: any) => (
-    <div
-      key={member.id}
-      className="flex items-center gap-3"
-    >
-      {member.User.profileImage ? (
-        <img
-          src={`http://localhost:5000${member.User.profileImage}`}
-          className="w-10 h-10 rounded-full object-cover"
-        />
-      ) : (
-        <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center">
-          {member.User.username.charAt(0).toUpperCase()}
-        </div>
-      )}
+            {group.members?.map((member: any) => (
+  <div key={member.userId} className="flex items-center gap-3">
+    {member.profileImage ? (
+      <img
+        src={`http://localhost:5000${member.profileImage}`}
+        className="w-10 h-10 rounded-full object-cover"
+      />
+    ) : (
+      <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center">
+        {member.username?.charAt(0).toUpperCase()}
+      </div>
+    )}
 
-      <span>{member.User.username}</span>
-    </div>
-))}
+    <span>{member.username}</span>
+  </div>
+)) 
+}
           </div>
         </div>
         <input
