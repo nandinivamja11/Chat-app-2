@@ -92,3 +92,11 @@ export const updateGroupPhoto = async (
 
   return res.data;
 };
+export const deleteGroupMessage = async (
+  id: number,
+  type: "me" | "everyone"
+) => {
+  return api.delete(`/group/message/delete/${id}`, {
+    data: { type },
+  });
+};

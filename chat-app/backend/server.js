@@ -84,6 +84,7 @@ const onlineUsers = new Map();
     console.log("SEND MESSAGE RECEIVED:", data);
 
     const payload = {
+       id: data.id,
        sender: Number(data.sender),
        receiver: Number(data.receiver),
        text: data.text || null,

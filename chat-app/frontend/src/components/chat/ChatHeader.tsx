@@ -65,7 +65,6 @@ function ChatHeader({ name, profileImage, isGroup, onOpenGroupInfo }: ChatHeader
         </button>
 
         <button
-          onClick={() => navigate("/profile")}
           className="p-2 rounded-full hover:bg-gray-100">
           <EllipsisVertical size={22} />
         </button>

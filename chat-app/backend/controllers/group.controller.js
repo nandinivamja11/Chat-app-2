@@ -307,3 +307,34 @@ exports.updateGroupName = async (req, res) => {
     res.status(500).json(err);
   }
 };
+
+exports.deleteGroupMessage = async (req, res) => {
+  const { id } = req.params;
+  const { type } = req.body;
+
+  const message = await GroupMessage.findByPk(id);
+
+  if (!message) {
+    return res.status(404).json({
+      message: "Message not found",
+    });
+  }
+
+  if (Number(message.senderId) !== Number(req.user.id)) {
+    return res.status(403).json({
+      message: "Unauthorized",
+    });
+  }
+
+  if (type === "everyone") {
+    message.message = "This message was deleted";
+    message.isDeleted = true;
+    await message.save();
+  } else {
+    await message.destroy();
+  }
+
+  res.json({
+    success: true,
+  });
+};

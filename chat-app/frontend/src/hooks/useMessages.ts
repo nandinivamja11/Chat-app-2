@@ -32,6 +32,7 @@ export default function useMessages({ selectedChat, setMessages, currentChat, se
         type: msg.type,
         fileUrl: msg.fileUrl,
         fileName: msg.fileName,
+        replyTo: msg.replyTo, 
         time: new Date(msg.createdAt).toLocaleTimeString(),
       }));
 

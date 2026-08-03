@@ -38,6 +38,9 @@ export default function useSocket({
 
     socket.on("receive_message", onReceive);
     socket.on("receive_group_message", onReceive);
+    socket.on("message_deleted", (data) => {
+  onMessageDeleted(data);
+});
 
     socket.on("unread_updated", loadUnread);
     socket.on("group_unread_updated", handleGroupUnread);
@@ -52,6 +55,7 @@ export default function useSocket({
 
       socket.off("receive_message", onReceive);
       socket.off("receive_group_message", onReceive);
+      socket.off("message_deleted");
 
       socket.off("unread_updated", loadUnread);
       socket.off("group_unread_updated", handleGroupUnread);

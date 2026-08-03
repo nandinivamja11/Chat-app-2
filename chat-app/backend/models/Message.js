@@ -58,6 +58,19 @@ mimeType: {
   type: DataTypes.STRING,
   allowNull: true,
 },
+isDeleted: {
+  type: DataTypes.BOOLEAN,
+  defaultValue: false,
+},
+
+deletedForEveryone: {
+  type: DataTypes.BOOLEAN,
+  defaultValue: false,
+},
+replyTo: {
+  type: DataTypes.INTEGER,
+  allowNull: true,
+}
   },
   {
     tableName: "messages",

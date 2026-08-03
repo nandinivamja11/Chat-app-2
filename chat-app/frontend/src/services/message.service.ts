@@ -60,3 +60,16 @@ export const markSeen = async (senderId: number)=>{
 
     return api.put("/message/seen/" + senderId);
 };
+
+// Delete 
+
+export const deleteMessage = async (
+  messageId: number,
+  type: "me" | "everyone"
+) => {
+  const res = await api.delete(`/message/delete/${messageId}`, {
+    data: { type },
+  });
+
+  return res.data;
+};

@@ -44,6 +44,22 @@ const GroupMessage = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    replyTo: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    deletedForEveryone: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    replyTo: {
+  type: DataTypes.INTEGER,
+  allowNull: true,
+}
   },
   {
     timestamps: true,

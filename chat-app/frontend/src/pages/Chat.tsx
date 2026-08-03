@@ -10,9 +10,10 @@ import useMessages from "../hooks/useMessages";
 import useSendMessage from "../hooks/useSendMessage";
 import useUsers from "../hooks/useUsers";
 import useUnread from "../hooks/useUnread";
-import { createGroup, getMyGroups } from "../services/group.service";
+import { createGroup, getMyGroups, deleteGroupMessage } from "../services/group.service";
 import SettingsModal from "../components/chat/SettingsModal";
 import GroupInfoModal from "../components/chat/GroupInfoModal";
+import { deleteMessage } from "../services/message.service";
 
 function Chat() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
@@ -74,13 +75,16 @@ function Chat() {
   );
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [selectedMessage, setSelectedMessage] = useState<any>(null);
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [replyMessage, setReplyMessage] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentChat = chats.find((c) => c.id === selectedChat);
   const { unreadCounts, loadUnread } = useUnread();
 
 const { handleFileSelect } = useFileUpload({ selectedChat, currentChat, setMessages, setChats,});
-const { handleSend } = useSendMessage({ userId, selectedChat, message, currentChat, setMessage, setMessages,
-  setChats,});
+const { handleSend } = useSendMessage({ userId, selectedChat, message, currentChat, replyMessage,
+  setReplyMessage, setMessage, setMessages, setChats,});
 
 useMessages({ selectedChat, currentChat, setMessages, setChats, loadUnread,});
 useUsers({ userId, selectedChat, setSelectedChat, setChats, });
@@ -151,6 +155,7 @@ if (data.groupId)     {
   Number(currentChat.groupId) === Number(data.groupId)
 ) { 
     const msg = {
+      id: data.id,
       sender: Number(data.senderId),
       senderName: data.senderName,
       text: data.message,
@@ -193,6 +198,7 @@ if (data.groupId)     {
     ) {
 
       const msg = {
+        id: data.id,
         sender: Number(data.sender),
         receiver: Number(data.receiver),
         senderName: data.senderName,
@@ -219,6 +225,42 @@ if (data.groupId)     {
       );
     }
   };
+  const handleDeleteClick = (msg: any) => {
+  setSelectedMessage(msg);
+  setShowDeletePopup(true);
+};
+const handleDelete = async (type: "me" | "everyone") => {
+  if (!selectedMessage) return;
+  try {
+    if (currentChat?.isGroup) {
+       await deleteGroupMessage(selectedMessage.id, type);
+    } else {
+       await deleteMessage(selectedMessage.id, type);
+    }
+    if (type === "me") {
+      setMessages((prev: any) =>
+        prev.filter((msg: any) => msg.id !== selectedMessage.id)
+      );
+    } else {
+      setMessages((prev: any) =>
+        prev.map((msg: any) =>
+          msg.id === selectedMessage.id
+            ? {
+                ...msg,
+                text: "This message was deleted",
+                fileUrl: null,
+                fileName: null,
+                type: "text",
+              }
+            : msg
+        ));}
+    setShowDeletePopup(false);
+    setSelectedMessage(null);
+  } catch (err) {
+    console.log(err);
+    alert("Delete failed");
+  }
+};
   useEffect(() => {
   messagesEndRef.current?.scrollIntoView({
     behavior: "smooth",
@@ -272,25 +314,65 @@ if (data.groupId)     {
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {messages.map((msg, i) => (
             <MessageBubble
-              key={i}
-              text={msg.text}
-              sender={msg.sender === userId ? "me" : "other"}
-              senderName={msg.senderName}
-              time={msg.time}
-              type={msg.type}
-              fileUrl={msg.fileUrl}
-              fileName={msg.fileName}
-            />
+               key={i}
+               id={msg.id}
+               text={msg.text}
+               sender={msg.sender === userId ? "me" : "other"}
+               senderName={msg.senderName}
+               time={msg.time}
+               type={msg.type}
+               fileUrl={msg.fileUrl}
+               fileName={msg.fileName}
+              onReply={() => setReplyMessage(msg)} onForward={() => {
+              console.log("Forward", msg);}}
+               onDelete={() => handleDeleteClick(msg)}
+             />
           ))}
         <div ref={messagesEndRef}></div>
       </div>
-
+       {replyMessage && (
+<div className="bg-gray-100 border-l-4 border-green-500 p-2 flex justify-between">
+    <div>
+        <p className="text-xs text-green-600">
+            Replying
+        </p>
+        <p className="text-sm truncate">
+            {replyMessage.text}
+        </p>
+    </div>
+    <button onClick={() => setReplyMessage(null)}>
+        ✕
+    </button>
+</div>
+)}
         <MessageInput
           message={message}
           setMessage={setMessage}
           handleSend={handleSend}
           onFileSelect={handleFileSelect}
         />
+        {showDeletePopup && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="bg-white rounded-xl p-5 w-80">
+      <h2 className="text-lg font-semibold mb-4">
+        Delete Message
+      </h2>
+      <button onClick={() => handleDelete("everyone")}
+         className="w-full py-2 mb-2 rounded bg-red-500 text-white">
+         Delete for Everyone
+      </button>
+      <button onClick={() => handleDelete("me")}
+         className="w-full py-2 mb-2 rounded bg-gray-200">
+         Delete for Me
+      </button>
+      <button onClick={() => { setShowDeletePopup(false); setSelectedMessage(null);}}
+          className="w-full py-2 rounded">
+          Cancel
+      </button>
+    </div>
+  </div>
+)}
+
         {showCreateGroup && (
   <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
     <div className="bg-white rounded-xl p-6 w-100 shadow-xl">

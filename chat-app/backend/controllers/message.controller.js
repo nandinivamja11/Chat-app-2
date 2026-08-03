@@ -8,7 +8,7 @@ const sequelize = require("../config/db");
 // ======================
 exports.sendMessage = async (req, res) => {
   try {
-    const { receiver, message } = req.body;
+    const { receiver, message, replyTo } = req.body;
     const sender = Number(req.user.id);
     const receiverId = Number(receiver);
 
@@ -30,6 +30,7 @@ exports.sendMessage = async (req, res) => {
       sender,
       receiver: receiverId,
       message,
+      replyTo: replyTo || null,
     });
 
     return res.status(201).json({
@@ -120,7 +121,28 @@ exports.getConversation = async (req, res) => {
       },
 
       order: [["createdAt", "ASC"]],
-    });
+    });const messages = await Message.findAll({
+  where: {
+    [Op.or]: [
+      {
+        sender: senderId,
+        receiver: userId,
+      },
+      {
+        sender: userId,
+        receiver: senderId,
+      },
+    ],
+  },
+  include: [
+    {
+      model: Message,
+      as: "ReplyMessage",
+      required: false,
+    },
+  ],
+  order: [["createdAt", "ASC"]],
+});
 
     return res.status(200).json(messages);
   } catch (err) {
@@ -214,5 +236,49 @@ exports.getUnreadCounts = async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: err.message });
+  }
+};
+exports.deleteMessage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { type } = req.body;
+
+    const message = await Message.findByPk(id);
+
+    if (!message) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+
+    if (Number(message.sender) !== Number(req.user.id)) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    if (type === "everyone") {
+      message.message = "This message was deleted";
+      message.isDeleted = true;
+      message.deletedForEveryone = true;
+
+      // File hoy to pan remove from UI
+      message.fileUrl = null;
+      message.fileName = null;
+      message.mimeType = null;
+
+      await message.save();
+    } else {
+      await message.destroy();
+    }
+
+    return res.json({
+     success: true,
+     id: message.id,
+     type,
+     message,
+   });
+
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      message: err.message,
+    });
   }
 };

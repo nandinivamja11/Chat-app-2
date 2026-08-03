@@ -8,6 +8,8 @@ export default function useSendMessage({
   selectedChat,
   currentChat,
   message,
+  replyMessage,
+  setReplyMessage,
   selectedFile,
   setSelectedFile,
   setMessage,
@@ -92,14 +94,43 @@ setChats((prev: any) =>
   const res = await api.post("/message/send", {
     receiver: selectedUserId,
     message,
+    replyTo: replyMessage?.id || null,
   });
+   setMessages((prev: any) => [
+  ...prev,
+  {
+    id: res.data.data.id,
+    sender: Number(res.data.data.sender),
+    receiver: Number(res.data.data.receiver),
+    text: res.data.data.message,
+    type: res.data.data.type,
+    fileUrl: res.data.data.fileUrl,
+    fileName: res.data.data.fileName,
+    replyTo: replyMessage
+      ? {
+          id: replyMessage.id,
+          text: replyMessage.text,
+          senderName: replyMessage.senderName,
+        }
+      : null,
+    time: new Date(res.data.data.createdAt).toLocaleTimeString(),
+  },
+]);
 
   socket.emit("send_message", {
-    sender: res.data.data.sender,
-    receiver: res.data.data.receiver,
-    text: res.data.data.message,
-    createdAt: res.data.data.createdAt,
-  });
+  id: res.data.data.id,
+  sender: res.data.data.sender,
+  receiver: res.data.data.receiver,
+  text: res.data.data.message,
+  replyTo: replyMessage
+    ? {
+        id: replyMessage.id,
+        text: replyMessage.text,
+        senderName: replyMessage.senderName,
+      }
+    : null,
+  createdAt: res.data.data.createdAt,
+});
 
 }
     } catch (err) {
@@ -111,6 +142,7 @@ setChats((prev: any) =>
     }
 
     setMessage("");
+    setReplyMessage(null);
   };
 
   return {

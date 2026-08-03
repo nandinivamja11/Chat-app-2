@@ -11,6 +11,7 @@ const {
   getMyChats,
   markAsSeen,
   getUnreadCounts,
+  deleteMessage,
 } = require("../controllers/message.controller");
 
 // ================= ROUTES =================
@@ -28,5 +29,10 @@ router.get("/conversation/:userId", authMiddleware, getConversation);
 router.get("/unread", authMiddleware, getUnreadCounts);
 
 router.put("/seen/:senderId", authMiddleware, markAsSeen);
+router.delete(
+  "/delete/:id",
+  authMiddleware,
+  deleteMessage
+);
 
 module.exports = router;
