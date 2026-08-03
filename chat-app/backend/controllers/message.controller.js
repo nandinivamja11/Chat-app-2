@@ -295,17 +295,16 @@ exports.editMessage = async (req, res) => {
     const { id } = req.params;
     const { message } = req.body;
 
-    const msg = await Message.findByPk(id);
+    let msg = await Message.findByPk(id);
+
+    if (!msg) {
+      msg = await GroupMessage.findByPk(id);
+    }
 
     if (!msg) {
       return res.status(404).json({
+        success: false,
         message: "Message not found",
-      });
-    }
-
-    if (Number(msg.sender) !== Number(req.user.id)) {
-      return res.status(403).json({
-        message: "Unauthorized",
       });
     }
 
@@ -314,15 +313,15 @@ exports.editMessage = async (req, res) => {
 
     await msg.save();
 
-    return res.json({
+    res.json({
       success: true,
       data: msg,
     });
-
   } catch (err) {
     console.log(err);
 
     res.status(500).json({
+      success: false,
       message: err.message,
     });
   }

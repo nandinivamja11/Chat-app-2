@@ -373,3 +373,23 @@ exports.deleteGroupMessage = async (req, res) => {
     success: true,
   });
 };
+exports.editGroupMessage = async (req, res) => {
+  const { id } = req.params;
+  const { message } = req.body;
+
+  const msg = await GroupMessage.findByPk(id);
+
+  if (!msg) {
+    return res.status(404).json({ message: "Not found" });
+  }
+
+  msg.message = message;
+  msg.edited = true;
+
+  await msg.save();
+
+  res.json({
+    success: true,
+    data: msg,
+  });
+};

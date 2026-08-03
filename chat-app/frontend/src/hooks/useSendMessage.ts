@@ -1,6 +1,6 @@
 import socket from "../socket";
 import api from "../services/api";
-import { uploadGroupFile } from "../services/group.service";
+import { uploadGroupFile, editGroupMessage } from "../services/group.service";
 import { Message } from "../types/chat.types";
 import { editMessage } from "../services/message.service";
 
@@ -22,31 +22,38 @@ export default function useSendMessage({
 
   const handleSend = async () => {
     if (editingMessage) {
-  const res = await editMessage(editingMessage.id, message);
+  try {
+    if (currentChat?.isGroup) {
+      await editGroupMessage(editingMessage.id, message);
+    } else {
+      await editMessage(editingMessage.id, message);
+    }
 
-  setMessages((prev: any) =>
-    prev.map((m: any) =>
-      m.id === editingMessage.id
-        ? {
-            ...m,
-            text: message,
-            edited: true,
-          }
-        : m
-    )
-  );
+    setMessages((prev: any) =>
+      prev.map((m: any) =>
+        m.id === editingMessage.id
+          ? {
+              ...m,
+              text: message,
+              edited: true,
+            }
+          : m
+      )
+    );
 
-  socket.emit("edit_message", {
-    id: editingMessage.id,
-    sender: userId,
-    receiver: editingMessage.receiver,
-    message,
-    edited: true,
-  });
+    socket.emit("edit_message", {
+      id: editingMessage.id,
+      sender: userId,
+      receiver: editingMessage.receiver,
+      message,
+      edited: true,
+    });
+    setEditingMessage(null);
+    setMessage("");
 
-  setEditingMessage(null);
-  setMessage("");
-
+  } catch (err) {
+    console.log(err);
+  }
   return;
 }
 

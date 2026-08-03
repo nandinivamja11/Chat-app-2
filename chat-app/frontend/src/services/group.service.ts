@@ -100,3 +100,9 @@ export const deleteGroupMessage = async (
     data: { type },
   });
 };
+
+export const editGroupMessage = async (id: number, message: string) => {
+  return api.put(`/group/edit/${id}`, {
+    message,
+  });
+};

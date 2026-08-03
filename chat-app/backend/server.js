@@ -111,17 +111,13 @@ const onlineUsers = new Map();
   }
 });
 socket.on("edit_message", (data) => {
-
     const receiverSocket = onlineUsers.get(Number(data.receiver));
-    const senderSocket = onlineUsers.get(Number(data.sender));
 
     if (receiverSocket) {
         io.to(receiverSocket).emit("message_edited", data);
     }
 
-    if (senderSocket) {
-        io.to(senderSocket).emit("message_edited", data);
-    }
+    io.to(socket.id).emit("message_edited", data);
 });
 const GroupMember = require("./models/GroupMember");
 
