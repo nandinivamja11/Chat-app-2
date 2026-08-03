@@ -12,6 +12,7 @@ const {
   markAsSeen,
   getUnreadCounts,
   deleteMessage,
+  editMessage,
 } = require("../controllers/message.controller");
 
 // ================= ROUTES =================
@@ -29,10 +30,7 @@ router.get("/conversation/:userId", authMiddleware, getConversation);
 router.get("/unread", authMiddleware, getUnreadCounts);
 
 router.put("/seen/:senderId", authMiddleware, markAsSeen);
-router.delete(
-  "/delete/:id",
-  authMiddleware,
-  deleteMessage
-);
+router.delete("/delete/:id", authMiddleware, deleteMessage);
+router.put("/edit/:id", authMiddleware, editMessage);
 
 module.exports = router;

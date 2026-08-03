@@ -91,6 +91,7 @@ const onlineUsers = new Map();
        type: data.type || null,
        fileUrl: data.fileUrl || null,
        fileName: data.fileName || null,
+       replyTo: data.replyTo || null,
        createdAt: data.createdAt,
       };
     
@@ -109,6 +110,19 @@ const onlineUsers = new Map();
     console.log("Socket error:", error);
   }
 });
+socket.on("edit_message", (data) => {
+
+    const receiverSocket = onlineUsers.get(Number(data.receiver));
+    const senderSocket = onlineUsers.get(Number(data.sender));
+
+    if (receiverSocket) {
+        io.to(receiverSocket).emit("message_edited", data);
+    }
+
+    if (senderSocket) {
+        io.to(senderSocket).emit("message_edited", data);
+    }
+});
 const GroupMember = require("./models/GroupMember");
 
 socket.on("send_group_message", async (data) => {
@@ -121,6 +135,7 @@ socket.on("send_group_message", async (data) => {
     const payload = {
         ...data,
         senderName: sender?.username,
+        replyToData: data.replyToData || null,
     };
 
     const members = await GroupMember.findAll({

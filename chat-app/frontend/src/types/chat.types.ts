@@ -6,6 +6,11 @@ export type Message = {
   type?: string;
   fileUrl?: string;
   fileName?: string;
+  replyTo?: {
+  id: number;
+  text: string;
+  senderName: string;
+} | null;
   senderName?: string;
   time: string;
 };

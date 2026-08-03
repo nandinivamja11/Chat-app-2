@@ -2,7 +2,7 @@ import { useState } from "react";
 import { MoreVertical } from "lucide-react";
 
 function MessageBubble({ id, text, sender, senderName, time, type, fileUrl, fileName,
-  replyTo, onDelete, onReply,  onForward }: any) {
+  replyTo, edited, onDelete, onReply, onForward, onEdit, }: any) {
   const isMe = sender === "me";
   const [showMenu, setShowMenu] = useState(false);
   const filePath = fileUrl
@@ -67,6 +67,11 @@ function MessageBubble({ id, text, sender, senderName, time, type, fileUrl, file
   }}
 >
   {text}
+{edited && (
+<span className="text-[10px] ml-2 opacity-60">
+(edited)
+</span>
+)}
 </p>
 </>
 )}
@@ -83,7 +88,10 @@ function MessageBubble({ id, text, sender, senderName, time, type, fileUrl, file
         onClick={() => { setShowMenu(false); onForward();}}>
         Forward
     </button>
-
+    <button className="w-full text-left px-4 py-2 hover:bg-gray-100"
+        onClick={() => { setShowMenu(false); console.log("EDIT BUTTON"); onEdit(); }}>
+        Edit
+    </button>
     <button className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
         onClick={() => { setShowMenu(false); onDelete(); }}>
         Delete

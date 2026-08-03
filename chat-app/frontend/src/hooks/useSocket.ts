@@ -6,6 +6,7 @@ type Props = {
   selectedChat: string | null;
   loadUnread: () => void;
   onReceive: (data: any) => void;
+  onMessageEdited: (data: any) => void;
 };
 
 export default function useSocket({
@@ -13,6 +14,7 @@ export default function useSocket({
   selectedChat,
   loadUnread,
   onReceive,
+  onMessageEdited,
 }: Props) {
 
   useEffect(() => {
@@ -38,6 +40,7 @@ export default function useSocket({
 
     socket.on("receive_message", onReceive);
     socket.on("receive_group_message", onReceive);
+    socket.on("message_edited", onMessageEdited);
     socket.on("message_deleted", (data) => {
   onMessageDeleted(data);
 });
@@ -55,6 +58,7 @@ export default function useSocket({
 
       socket.off("receive_message", onReceive);
       socket.off("receive_group_message", onReceive);
+      socket.off("message_edited", onMessageEdited);
       socket.off("message_deleted");
 
       socket.off("unread_updated", loadUnread);

@@ -2,6 +2,7 @@ import socket from "../socket";
 import api from "../services/api";
 import { uploadGroupFile } from "../services/group.service";
 import { Message } from "../types/chat.types";
+import { editMessage } from "../services/message.service";
 
 export default function useSendMessage({
   userId,
@@ -10,6 +11,8 @@ export default function useSendMessage({
   message,
   replyMessage,
   setReplyMessage,
+  editingMessage,
+  setEditingMessage,
   selectedFile,
   setSelectedFile,
   setMessage,
@@ -18,53 +21,81 @@ export default function useSendMessage({
 }: any) {
 
   const handleSend = async () => {
+    if (editingMessage) {
+  const res = await editMessage(editingMessage.id, message);
+
+  setMessages((prev: any) =>
+    prev.map((m: any) =>
+      m.id === editingMessage.id
+        ? {
+            ...m,
+            text: message,
+            edited: true,
+          }
+        : m
+    )
+  );
+
+  socket.emit("edit_message", {
+    id: editingMessage.id,
+    sender: userId,
+    receiver: editingMessage.receiver,
+    message,
+    edited: true,
+  });
+
+  setEditingMessage(null);
+  setMessage("");
+
+  return;
+}
 
     if ((!message.trim() && !selectedFile) || !selectedChat) {
   return;
 }
 
-    // const msg: Message = {
-    //   sender: userId,
-    //   receiver: selectedChat,
-    //   text: message,
-    //   time: new Date().toLocaleTimeString(),
-    // };
-
-    // setMessages((prev: any) => [...prev, msg]);
-
-    // setChats((prev: any) =>
-    //   prev.map((chat: any) =>
-    //     chat.id === selectedChat
-    //       ? {
-    //           ...chat,
-    //           lastMessage: message,
-    //         }
-    //       : chat
-    //   )
-    // );
-
     try {
+      const replyPayload = replyMessage
+        ? {
+            id: replyMessage.id,
+            text: replyMessage.text,
+            senderName: replyMessage.senderName,
+          }
+        : null;
+
       if (currentChat?.isGroup) {
 
   const res = await api.post("/group/message", {
   groupId: currentChat.groupId,
   message,
+  replyTo: replyMessage?.id || null,
 });
 console.log("GROUP RESPONSE:", res.data);
+
+  const groupReplyPayload = replyMessage
+    ? {
+        id: replyMessage.id,
+        text: replyMessage.text,
+        senderName: replyMessage.senderName,
+      }
+    : null;
 
   socket.emit("send_group_message", {
   ...res.data,
   senderName: localStorage.getItem("username"),
+  replyToData: groupReplyPayload,
 });
 setMessages((prev: any) => [
   ...prev,
   {
+    id: res.data.id,
     sender: Number(res.data.senderId),
-    senderName: res.data.senderName || localStorage.getItem("username"),
+    senderName: res.data.Sender?.username || localStorage.getItem("username"),
     text: res.data.message,
     type: res.data.type,
     fileUrl: res.data.fileUrl,
     fileName: res.data.fileName,
+    replyTo: groupReplyPayload,
     time: new Date(res.data.createdAt).toLocaleTimeString(),
   },
 ]);
@@ -106,13 +137,7 @@ setChats((prev: any) =>
     type: res.data.data.type,
     fileUrl: res.data.data.fileUrl,
     fileName: res.data.data.fileName,
-    replyTo: replyMessage
-      ? {
-          id: replyMessage.id,
-          text: replyMessage.text,
-          senderName: replyMessage.senderName,
-        }
-      : null,
+    replyTo: replyPayload,
     time: new Date(res.data.data.createdAt).toLocaleTimeString(),
   },
 ]);
@@ -122,13 +147,8 @@ setChats((prev: any) =>
   sender: res.data.data.sender,
   receiver: res.data.data.receiver,
   text: res.data.data.message,
-  replyTo: replyMessage
-    ? {
-        id: replyMessage.id,
-        text: replyMessage.text,
-        senderName: replyMessage.senderName,
-      }
-    : null,
+  replyTo: replyMessage?.id || null,
+  replyToData: replyPayload,
   createdAt: res.data.data.createdAt,
 });
 

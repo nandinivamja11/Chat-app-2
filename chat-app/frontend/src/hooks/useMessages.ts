@@ -32,7 +32,17 @@ export default function useMessages({ selectedChat, setMessages, currentChat, se
         type: msg.type,
         fileUrl: msg.fileUrl,
         fileName: msg.fileName,
-        replyTo: msg.replyTo, 
+        edited: msg.edited, 
+        replyTo: msg.ReplyMessage
+  ? {
+      id: msg.ReplyMessage.id,
+      text: msg.ReplyMessage.message,
+      senderName:
+        msg.ReplyMessage.sender === Number(localStorage.getItem("userId"))
+          ? "You"
+          : msg.ReplyMessage.Sender?.username || "",
+    }
+  : null, 
         time: new Date(msg.createdAt).toLocaleTimeString(),
       }));
 

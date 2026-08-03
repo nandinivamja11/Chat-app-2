@@ -73,3 +73,16 @@ export const deleteMessage = async (
 
   return res.data;
 };
+export const editMessage = async (
+    id:number,
+    message:string
+) => {
+
+    const res = await api.put(
+        `/message/edit/${id}`,
+        { message }
+    );
+
+    return res.data;
+
+};

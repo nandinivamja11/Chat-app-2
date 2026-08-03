@@ -9,6 +9,10 @@ const sequelize = require("../config/db");
 exports.sendMessage = async (req, res) => {
   try {
     const { receiver, message, replyTo } = req.body;
+
+    console.log("BODY:", req.body);
+    console.log("replyTo:", replyTo);
+
     const sender = Number(req.user.id);
     const receiverId = Number(receiver);
 
@@ -33,10 +37,28 @@ exports.sendMessage = async (req, res) => {
       replyTo: replyTo || null,
     });
 
-    return res.status(201).json({
-      message: "Message sent successfully",
-      data: newMessage,
-    });
+    const createdMessage = await Message.findByPk(newMessage.id, {
+  include: [
+    {
+      model: Message,
+      as: "ReplyMessage",
+      required: false,
+      include: [
+        {
+          model: User,
+          as: "Sender",
+          attributes: ["id", "username"],
+        },
+      ],
+    },
+  ],
+});
+
+// 👇 Return this
+return res.status(201).json({
+  message: "Message sent successfully",
+  data: createdMessage,
+});
 
   } catch (err) {
   console.error("SEND MESSAGE ERROR");
@@ -106,41 +128,27 @@ exports.getConversation = async (req, res) => {
     const userId = Number(req.params.userId);
     const senderId = Number(req.user.id);
 
-    const messages = await Message.findAll({
-      where: {
-        [Op.or]: [
-          {
-            sender: senderId,
-            receiver: userId,
-          },
-          {
-            sender: userId,
-            receiver: senderId,
-          },
-        ],
-      },
-
-      order: [["createdAt", "ASC"]],
-    });const messages = await Message.findAll({
+     const messages = await Message.findAll({
   where: {
     [Op.or]: [
-      {
-        sender: senderId,
-        receiver: userId,
-      },
-      {
-        sender: userId,
-        receiver: senderId,
-      },
+      { sender: senderId, receiver: userId },
+      { sender: userId, receiver: senderId },
     ],
   },
   include: [
-    {
-      model: Message,
-      as: "ReplyMessage",
-      required: false,
-    },
-  ],
+  {
+    model: Message,
+    as: "ReplyMessage",
+    required: false,
+    include: [
+      {
+        model: User,
+        as: "Sender",
+        attributes: ["id", "username"],
+      },
+    ],
+  },
+],
   order: [["createdAt", "ASC"]],
 });
 
@@ -278,6 +286,43 @@ exports.deleteMessage = async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+exports.editMessage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { message } = req.body;
+
+    const msg = await Message.findByPk(id);
+
+    if (!msg) {
+      return res.status(404).json({
+        message: "Message not found",
+      });
+    }
+
+    if (Number(msg.sender) !== Number(req.user.id)) {
+      return res.status(403).json({
+        message: "Unauthorized",
+      });
+    }
+
+    msg.message = message;
+    msg.edited = true;
+
+    await msg.save();
+
+    return res.json({
+      success: true,
+      data: msg,
+    });
+
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
       message: err.message,
     });
   }

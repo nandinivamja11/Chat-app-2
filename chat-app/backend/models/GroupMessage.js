@@ -56,10 +56,6 @@ const GroupMessage = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    replyTo: {
-  type: DataTypes.INTEGER,
-  allowNull: true,
-}
   },
   {
     timestamps: true,

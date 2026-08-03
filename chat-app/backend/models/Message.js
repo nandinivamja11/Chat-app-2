@@ -70,7 +70,11 @@ deletedForEveryone: {
 replyTo: {
   type: DataTypes.INTEGER,
   allowNull: true,
-}
+},
+edited: {
+  type: DataTypes.BOOLEAN,
+  defaultValue: false,
+},
   },
   {
     tableName: "messages",
@@ -99,4 +103,9 @@ replyTo: {
 //   as: "Receiver",
 // });
 
-module.exports = Message;   
+Message.belongsTo(Message, {
+  foreignKey: "replyTo",
+  as: "ReplyMessage",
+});
+
+module.exports = Message;

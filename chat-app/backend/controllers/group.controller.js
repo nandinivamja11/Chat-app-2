@@ -99,9 +99,9 @@ exports.getMyGroups = async (req, res) => {
 
 exports.sendGroupMessage = async (req, res) => {
   try{
-  const { groupId, senderId, message, type, fileUrl, fileName } = req.body;
+  const { groupId, message, type, fileUrl, fileName, replyTo } = req.body;
 
-  const msg = await GroupMessage.create({
+  const newMessage = await GroupMessage.create({
     groupId,
     senderId: req.user.id,
     message,
@@ -109,9 +109,32 @@ exports.sendGroupMessage = async (req, res) => {
     fileUrl,
     fileName,
     isSeen: false,
+    replyTo: replyTo || null,
   });
 
-  res.json(msg);
+  const createdMessage = await GroupMessage.findByPk(newMessage.id, {
+    include: [
+      {
+        model: User,
+        as: "Sender",
+        attributes: ["id", "username"],
+      },
+      {
+        model: GroupMessage,
+        as: "ReplyMessage",
+        required: false,
+        include: [
+          {
+            model: User,
+            as: "Sender",
+            attributes: ["id", "username"],
+          },
+        ],
+      },
+    ],
+  });
+
+  res.json(createdMessage);
 } catch (err) {
   console.error(err);
   console.error(err.message);
@@ -134,6 +157,18 @@ exports.getGroupMessages = async (req, res) => {
           model: User,
           as: "Sender",
           attributes: ["id", "username"],
+        },
+        {
+          model: GroupMessage,
+          as: "ReplyMessage",
+          required: false,
+          include: [
+            {
+              model: User,
+              as: "Sender",
+              attributes: ["id", "username"],
+            },
+          ],
         },
       ],
       order: [["createdAt", "ASC"]],

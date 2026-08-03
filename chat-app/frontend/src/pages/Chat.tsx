@@ -78,13 +78,14 @@ function Chat() {
   const [selectedMessage, setSelectedMessage] = useState<any>(null);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [replyMessage, setReplyMessage] = useState<any>(null);
+  const [editingMessage,setEditingMessage]=useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentChat = chats.find((c) => c.id === selectedChat);
   const { unreadCounts, loadUnread } = useUnread();
 
 const { handleFileSelect } = useFileUpload({ selectedChat, currentChat, setMessages, setChats,});
 const { handleSend } = useSendMessage({ userId, selectedChat, message, currentChat, replyMessage,
-  setReplyMessage, setMessage, setMessages, setChats,});
+  setReplyMessage, editingMessage, setEditingMessage, setMessage, setMessages, setChats,});
 
 useMessages({ selectedChat, currentChat, setMessages, setChats, loadUnread,});
 useUsers({ userId, selectedChat, setSelectedChat, setChats, });
@@ -93,6 +94,7 @@ console.log("CURRENT:", currentChat);
 console.log("SELECTED:", selectedChat);
 
   const handleSelectChat = (id: string) => {
+    console.log("Selected Chat:", id);
     setSelectedChat(id);
     localStorage.setItem("selectedChat", id);
   };
@@ -162,6 +164,7 @@ if (data.groupId)     {
       type: data.type,
       fileUrl: data.fileUrl,
       fileName: data.fileName,
+      replyTo: data.replyToData || null,
       time: new Date(data.createdAt).toLocaleTimeString(),
     };
 
@@ -206,6 +209,7 @@ if (data.groupId)     {
         type: data.type,
         fileUrl: data.fileUrl,
         fileName: data.fileName,
+        replyTo: data.replyToData || null,
         time: new Date(data.createdAt).toLocaleTimeString(),
       };
 
@@ -225,6 +229,19 @@ if (data.groupId)     {
       );
     }
   };
+  const handleMessageEdited = (data: any) => {
+  setMessages((prev: any) =>
+    prev.map((msg: any) =>
+      msg.id === data.id
+        ? {
+            ...msg,
+            text: data.message,
+            edited: true,
+          }
+        : msg
+    )
+  );
+};
   const handleDeleteClick = (msg: any) => {
   setSelectedMessage(msg);
   setShowDeletePopup(true);
@@ -273,6 +290,7 @@ const handleDelete = async (type: "me" | "everyone") => {
     selectedChat,
     loadUnread,
     onReceive: handleReceive,
+    onMessageEdited: handleMessageEdited,
   });
 
           const chatsWithUnread = chats.map(chat => ({
@@ -323,9 +341,13 @@ const handleDelete = async (type: "me" | "everyone") => {
                type={msg.type}
                fileUrl={msg.fileUrl}
                fileName={msg.fileName}
-              onReply={() => setReplyMessage(msg)} onForward={() => {
-              console.log("Forward", msg);}}
+               replyTo={msg.replyTo}
+               edited={msg.edited}
+               onReply={() => setReplyMessage(msg)}
+               onForward={() => console.log("Forward", msg)}
                onDelete={() => handleDeleteClick(msg)}
+               onEdit={() => { console.log("EDIT CLICK:", msg);
+                setEditingMessage(msg); setMessage(msg.text); }}
              />
           ))}
         <div ref={messagesEndRef}></div>
@@ -413,8 +435,7 @@ const handleDelete = async (type: "me" | "everyone") => {
       <div className="flex justify-end gap-2">
         <button
           onClick={() => setShowCreateGroup(false)}
-          className="px-4 py-2 bg-gray-300 rounded-lg"
-        >
+          className="px-4 py-2 bg-gray-300 rounded-lg">
           Cancel
         </button>
 
@@ -428,7 +449,6 @@ const handleDelete = async (type: "me" | "everyone") => {
     </div>
   </div>
 )}
-
       </div>
     </div>
   );
