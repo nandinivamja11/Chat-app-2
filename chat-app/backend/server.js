@@ -123,13 +123,28 @@ const GroupMember = require("./models/GroupMember");
 
 socket.on("send_group_message", async (data) => {
 
-    const sender = await User.findByPk(data.senderId, {
+    if (!data) {
+        console.log("Group socket data is null");
+        return;
+    }
+
+    console.log("GROUP SOCKET:", data);
+
+    const senderId = data.senderId || data.sender;
+
+    if (!senderId) {
+        console.log("senderId missing");
+        return;
+    }
+
+    const sender = await User.findByPk(senderId, {
         attributes: ["id", "username"],
     });
     console.log("SOCKET GROUP DATA:", data);
 
     const payload = {
         ...data,
+        text: data.text || data.message,
         senderName: sender?.username,
         replyToData: data.replyToData || null,
     };

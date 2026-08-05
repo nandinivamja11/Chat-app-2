@@ -12,6 +12,8 @@ export type Message = {
   senderName: string;
 } | null;
   senderName?: string;
+  forwarded?: boolean;
+  edited?: boolean;
   time: string;
 };
 

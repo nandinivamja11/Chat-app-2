@@ -14,6 +14,10 @@ import { createGroup, getMyGroups, deleteGroupMessage } from "../services/group.
 import SettingsModal from "../components/chat/SettingsModal";
 import GroupInfoModal from "../components/chat/GroupInfoModal";
 import { deleteMessage } from "../services/message.service";
+import socket from "../socket";
+import { forwardMessage } from "../services/message.service";
+import { forwardGroupMessage } from "../services/group.service";
+import ForwardModal from "../components/chat/ForwardModal";
 
 function Chat() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
@@ -78,6 +82,8 @@ function Chat() {
   const [selectedMessage, setSelectedMessage] = useState<any>(null);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [replyMessage, setReplyMessage] = useState<any>(null);
+  const [showForward, setShowForward] = useState(false);
+  const [forwardMessageData, setForwardMessageData] = useState<any>(null);
   const [editingMessage,setEditingMessage]=useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentChat = chats.find((c) => c.id === selectedChat);
@@ -150,6 +156,7 @@ useEffect(() => {
 }, [chats.length]);
 
 const handleReceive = (data: any) => {
+  console.log("HANDLE RECEIVE:", data);
   // ===== Group Message =====
 if (data.groupId)     {
   if (
@@ -160,7 +167,8 @@ if (data.groupId)     {
       id: data.id,
       sender: Number(data.senderId),
       senderName: data.senderName,
-      text: data.message,
+      text: data.text || data.message,
+      forwarded: data.forwarded,
       type: data.type,
       fileUrl: data.fileUrl,
       fileName: data.fileName,
@@ -177,6 +185,7 @@ if (data.groupId)     {
         ? {
             ...chat,
             lastMessage:
+             data.text ||
               data.message ||
               (data.fileName ? `📎 ${data.fileName}` : "Attachment"),
           }
@@ -210,6 +219,7 @@ if (data.groupId)     {
         fileUrl: data.fileUrl,
         fileName: data.fileName,
         replyTo: data.replyToData || null,
+        forwarded: Boolean(data.forwarded),
         time: new Date(data.createdAt).toLocaleTimeString(),
       };
 
@@ -278,6 +288,59 @@ const handleDelete = async (type: "me" | "everyone") => {
     alert("Delete failed");
   }
 };
+const handleForward = async (targets: any[]) => {
+  if (!forwardMessageData) return;
+
+  for (const target of targets) {
+    if (target.isGroup) {
+      const res = await forwardGroupMessage({
+        messageId: forwardMessageData.id,
+        groupId: target.groupId,
+        sourceType: currentChat?.isGroup ? "group" : "private",
+      });
+      console.log("GROUP FORWARD RESPONSE:", res.data);
+      const newMessage = res.data;
+
+      socket.emit("send_group_message", {
+        messageId: forwardMessageData.id,
+        groupId: newMessage.groupId,
+        senderId: newMessage.senderId,
+        text: newMessage.message,
+        type: newMessage.type,
+        fileUrl: newMessage.fileUrl,
+        fileName: newMessage.fileName,
+        forwarded: true,
+        createdAt: newMessage.createdAt,
+      });
+    } else {
+      const receiver = Number(target.userId ?? target.id?.replace(/^user-/, ""));
+
+      if (!receiver) {
+        console.error("Forward target is missing a receiver id", target);
+        continue;
+      }
+
+      const res = await forwardMessage({
+        messageId: forwardMessageData.id,
+        receiver,
+        sourceType: currentChat?.isGroup ? "group" : "private",
+      });
+
+      socket.emit("send_message", {
+        id: res.data.data.id,
+        sender: res.data.data.sender,
+        receiver: res.data.data.receiver,
+        text: res.data.data.message,
+        type: res.data.data.type,
+        fileUrl: res.data.data.fileUrl,
+        fileName: res.data.data.fileName,
+        forwarded: true,
+        createdAt: res.data.data.createdAt,
+      });
+    }
+  }
+  setShowForward(false);
+};
   useEffect(() => {
   messagesEndRef.current?.scrollIntoView({
     behavior: "smooth",
@@ -342,9 +405,10 @@ const handleDelete = async (type: "me" | "everyone") => {
                fileUrl={msg.fileUrl}
                fileName={msg.fileName}
                replyTo={msg.replyTo}
+               forwarded={msg.forwarded}
                edited={msg.edited}
                onReply={() => setReplyMessage(msg)}
-               onForward={() => console.log("Forward", msg)}
+               onForward={() => { setForwardMessageData(msg); setShowForward(true); }}
                onDelete={() => handleDeleteClick(msg)}
                onEdit={() => { console.log("EDIT CLICK:", msg);
                 setEditingMessage(msg); setMessage(msg.text); }}
@@ -366,6 +430,13 @@ const handleDelete = async (type: "me" | "everyone") => {
         ✕
     </button>
 </div>
+)}
+{showForward && (
+    <ForwardModal
+        chats={chats}
+        onClose={() => setShowForward(false)}
+        onSend={handleForward}
+    />
 )}
         <MessageInput
           message={message}

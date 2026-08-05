@@ -2,7 +2,7 @@
 // const GroupMember = require("../models/GroupMember");
 // const User = require("../models/User");
 // const GroupMessage = require("../models/GroupMessage");
-const { User, Group, GroupMember, GroupMessage } = require("../models");
+const { User, Group, GroupMember, GroupMessage, Message } = require("../models");
 const { Op } = require("sequelize");
 const sequelize = require("../config/db");
 exports.createGroup = async (req, res) => {
@@ -393,3 +393,32 @@ exports.editGroupMessage = async (req, res) => {
     data: msg,
   });
 };
+exports.forwardGroupMessage=async(req,res)=>{
+    const sender=req.user.id;
+    const {messageId,groupId,sourceType}=req.body;
+
+    let old = null;
+
+    if (sourceType === "private") {
+        old = await Message.findByPk(messageId);
+    } else {
+        old = await GroupMessage.findByPk(messageId);
+    }
+
+    if (!old) {
+        return res.status(404).json({ message: "Message not found" });
+    }
+
+    const msg=await GroupMessage.create({
+        groupId,
+        senderId:sender,
+        message:old.message,
+        type:old.type,
+        fileUrl:old.fileUrl,
+        fileName:old.fileName,
+        mimeType:old.mimeType,
+        forwarded:true,
+        forwardFrom:old.id
+    });
+    res.json(msg);
+}

@@ -13,6 +13,7 @@ const {
   getUnreadCounts,
   deleteMessage,
   editMessage,
+  forwardMessage
 } = require("../controllers/message.controller");
 
 // ================= ROUTES =================
@@ -32,5 +33,6 @@ router.get("/unread", authMiddleware, getUnreadCounts);
 router.put("/seen/:senderId", authMiddleware, markAsSeen);
 router.delete("/delete/:id", authMiddleware, deleteMessage);
 router.put("/edit/:id", authMiddleware, editMessage);
+router.post("/forward", authMiddleware, forwardMessage);
 
 module.exports = router;

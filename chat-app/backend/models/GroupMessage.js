@@ -56,6 +56,14 @@ const GroupMessage = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    forwarded:{
+      type:DataTypes.BOOLEAN,
+      defaultValue:false
+    },
+    forwardFrom:{
+      type:DataTypes.INTEGER,
+      allowNull:true
+    },
   },
   {
     timestamps: true,

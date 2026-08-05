@@ -1,5 +1,6 @@
 const { Op } = require("sequelize");
 const Message = require("../models/Message");
+const GroupMessage = require("../models/GroupMessage");
 const User = require("../models/User");
 const sequelize = require("../config/db");
 
@@ -322,6 +323,50 @@ exports.editMessage = async (req, res) => {
 
     res.status(500).json({
       success: false,
+      message: err.message,
+    });
+  }
+};
+exports.forwardMessage = async (req, res) => {
+    console.log("===== FORWARD API HIT =====");
+    console.log(req.body);
+  try {
+    const sender = req.user.id;
+    const { messageId, receiver, sourceType } = req.body;
+
+    let oldMessage = null;
+
+    if (sourceType === "group") {
+      oldMessage = await GroupMessage.findByPk(messageId);
+    } else {
+      oldMessage = await Message.findByPk(messageId);
+    }
+
+    if (!oldMessage) {
+      return res.status(404).json({
+        message: "Message not found",
+      });
+    }
+
+    const newMessage = await Message.create({
+      sender,
+      receiver,
+      message: oldMessage.message,
+      type: oldMessage.type,
+      fileUrl: oldMessage.fileUrl,
+      fileName: oldMessage.fileName,
+      mimeType: oldMessage.mimeType,
+      replyTo: null,
+      forwarded: true,
+      forwardFrom: oldMessage.id,
+    });
+
+    return res.status(201).json({
+      success: true,
+      data: newMessage,
+    });
+  } catch (err) {
+    return res.status(500).json({
       message: err.message,
     });
   }

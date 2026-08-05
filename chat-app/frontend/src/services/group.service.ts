@@ -106,3 +106,8 @@ export const editGroupMessage = async (id: number, message: string) => {
     message,
   });
 };
+
+export const forwardGroupMessage = (data: {
+  messageId: number;
+  groupId: number;
+}) => api.post("/group/forward", data);

@@ -75,4 +75,10 @@ export const deleteMessage = async (
 };
 export const editMessage = (id:number,message:string)=>{
    return api.put(`/message/edit/${id}`,{message});
-}
+};
+
+export const forwardMessage = (data: {
+    messageId: number;
+    receiver: number;
+}) =>
+    api.post("/message/forward", data);

@@ -39,7 +39,10 @@ export default function useSocket({
     socket.on("connect_error", handleError);
 
     socket.on("receive_message", onReceive);
-    socket.on("receive_group_message", onReceive);
+    socket.on("receive_group_message", (data) => {
+      console.log("GROUP SOCKET RECEIVE:", data); 
+      onReceive(data);
+    });
     socket.on("message_edited", onMessageEdited);
     socket.on("message_deleted", (data) => {
   onMessageDeleted(data);

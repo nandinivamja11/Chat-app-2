@@ -5,7 +5,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const chatUpload = require("../middleware/chatUpload");
 const { createGroup, getMyGroups, sendGroupMessage, getGroupMessages, markGroupSeen,
   getGroupUnreadCounts, uploadGroupFile, updateGroupPhoto, updateGroupName, 
-  deleteGroupMessage, editGroupMessage } = require("../controllers/group.controller")
+  deleteGroupMessage, editGroupMessage,  forwardGroupMessage, } = require("../controllers/group.controller")
 
 router.post("/create", authMiddleware, chatUpload.single("groupImage"), createGroup);
 router.get("/my-groups", authMiddleware, getMyGroups);
@@ -19,5 +19,6 @@ router.put("/photo/:groupId", authMiddleware, chatUpload.single("groupImage"), u
 router.put("/name/:groupId", authMiddleware, updateGroupName);
 router.delete("/message/delete/:id", authMiddleware, deleteGroupMessage);
 router.put("/edit/:id", authMiddleware, editGroupMessage);
+router.post("/forward", authMiddleware, forwardGroupMessage);
 
 module.exports = router;   
