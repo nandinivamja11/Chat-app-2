@@ -80,14 +80,14 @@ function Sidebar({
               ? chat.messages[chat.messages.length - 1].text
               : chat.lastMessage;
 
-          const chatKey = chat.id as string;
+          const chatKey = String(chat.id);
 
           return (
             <div
               key={chatKey}
-              onClick={() => setSelectedChat(chat.id as string)}
+              onClick={() => setSelectedChat(String(chat.id))}
               className={`flex items-center p-4 cursor-pointer border-b transition hover:bg-gray-100 ${
-                selectedChat === (chat.id as string) ? "bg-blue-100" : ""
+                selectedChat === String(chat.id) ? "bg-blue-100" : ""
               }`}>
 
               {/* Avatar */}

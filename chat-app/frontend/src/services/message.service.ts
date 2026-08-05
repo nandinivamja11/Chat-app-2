@@ -82,3 +82,27 @@ export const forwardMessage = (data: {
     receiver: number;
 }) =>
     api.post("/message/forward", data);
+    
+export const reactToMessage = async (
+    messageId: number,
+    emoji: string
+) => {
+  const res = await api.post("/message/react", {
+    messageId,
+    emoji,
+  });
+
+  return res.data;
+};
+
+export const removeReaction = async (messageId: number) => {
+  const res = await api.delete(`/message/react/${messageId}`);
+
+  return res.data;
+};
+
+export const getMessageReactions = async (messageId: number) => {
+  const res = await api.get(`/message/reactions/${messageId}`);
+
+  return res.data;
+};

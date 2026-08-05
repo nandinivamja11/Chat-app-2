@@ -49,6 +49,12 @@ const onlineUsers = new Map();
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
 
+    // Make `io` available on `req` for controllers to emit socket events
+    app.use((req, _res, next) => {
+      req.io = io;
+      next();
+    });
+
     app.get("/health", (_req, res) => {
       res.json({ status: "ok" });
     });

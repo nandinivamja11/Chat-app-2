@@ -6,6 +6,7 @@ export type Message = {
   type?: string;
   fileUrl?: string;
   fileName?: string;
+  reactions?: any[];
   replyTo?: {
   id: number;
   text: string;

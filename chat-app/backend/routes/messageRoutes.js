@@ -13,7 +13,10 @@ const {
   getUnreadCounts,
   deleteMessage,
   editMessage,
-  forwardMessage
+  forwardMessage,
+  reactToMessage,
+  removeReaction,
+  getMessageReactions,
 } = require("../controllers/message.controller");
 
 // ================= ROUTES =================
@@ -34,5 +37,16 @@ router.put("/seen/:senderId", authMiddleware, markAsSeen);
 router.delete("/delete/:id", authMiddleware, deleteMessage);
 router.put("/edit/:id", authMiddleware, editMessage);
 router.post("/forward", authMiddleware, forwardMessage);
+// ================= MESSAGE REACTIONS =================
+
+// Add / Update reaction
+router.post("/react", authMiddleware, reactToMessage);
+
+// Remove reaction
+router.delete("/react/:messageId", authMiddleware, removeReaction);
+
+// Get reactions of a message
+router.get("/reactions/:messageId", authMiddleware, getMessageReactions);
+router.get("/test", (req, res) => { res.json({ ok: true }); });
 
 module.exports = router;

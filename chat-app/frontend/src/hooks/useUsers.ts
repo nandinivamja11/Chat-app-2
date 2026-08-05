@@ -47,9 +47,15 @@ export default function useUsers({ userId, selectedChat, setSelectedChat, setCha
       })
     );
     setChats((prev: any) => {
-  const groupChats = prev.filter((chat: any) => chat.isGroup);
-  return [...groupChats, ...chats];
-});
+      const groupChats = prev.filter((chat: any) => chat.isGroup);
+      const combinedChats = [...groupChats, ...chats];
+
+      if (!selectedChat && combinedChats.length > 0) {
+        setSelectedChat(String(combinedChats[0].id));
+      }
+
+      return combinedChats;
+    });
 
     //   setChats((prev: any) => {
     //   const groupChats = prev.filter((chat: any) => chat.isGroup);

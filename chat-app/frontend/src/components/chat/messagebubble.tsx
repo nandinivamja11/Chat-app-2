@@ -1,10 +1,13 @@
-  import { useState } from "react";
-  import { MoreVertical } from "lucide-react";
+import { useState } from "react";
+import Picker from "emoji-picker-react";
+import { reactToMessage } from "../../services/message.service";
+import { MoreVertical } from "lucide-react";
 
   function MessageBubble({ id, text, sender, senderName, time, type, fileUrl, fileName,
-    replyTo, edited, forwarded, onDelete, onReply, onForward, onEdit, }: any) {
+    replyTo, edited, forwarded, reactions, onReaction, onDelete, onReply, onForward, onEdit, }: any) {
     const isMe = sender === "me";
     const [showMenu, setShowMenu] = useState(false);
+    const [showReactionPicker,setShowReactionPicker]=useState(false);
     const filePath = fileUrl
     ? `http://localhost:5000${fileUrl}`
     : "";
@@ -84,7 +87,23 @@
       )}
     </div>
 
-    <p className="text-xs mt-1 opacity-70 text-right">{time}</p>
+    <p className="text-xs mt-1 opacity-70 text-right">
+      {time}</p>
+     
+     {reactions?.length>0 && (
+    <div className="flex gap-2 mt-2 flex-wrap">
+       { Object.entries(reactions.reduce((acc:any,r:any)=>{acc[r.emoji]=(acc[r.emoji]||0)+1;
+         return acc;
+       },{})
+        ).map(([emoji,count]:any)=>(
+
+    <div key={emoji}
+         className="bg-gray-200 rounded-full px-2 py-1 text-xs cursor-pointer">
+       {emoji} {count}
+     </div>
+      ))}
+    </div>
+    )}
 
     {showMenu && (
       <div className="absolute right-0 top-full mt-2 w-44 text-blue-500 bg-white rounded-lg shadow-lg border z-50">
@@ -97,6 +116,14 @@
         >
           Reply
         </button>
+        {showReactionPicker && (
+          <div className="absolute bottom-full right-0 z-50">
+          <Picker
+           onEmojiClick={async(e)=>{await onReaction(id,e.emoji);
+           setShowReactionPicker(false);}}
+         />
+        </div>
+        )}
 
         <button
           className="w-full text-left px-4 py-2 hover:bg-gray-100"
@@ -117,7 +144,11 @@
         >
           Edit
         </button>
-
+        <button className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                onClick={()=>{ setShowMenu(false); setShowReactionPicker(true);
+              }}>
+            Reaction
+        </button>
         <button
           className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
           onClick={() => {

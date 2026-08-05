@@ -159,6 +159,17 @@ exports.getGroupMessages = async (req, res) => {
           attributes: ["id", "username"],
         },
         {
+          model: require("../models").GroupMessageReaction,
+          as: "reactions",
+          include: [
+            {
+              model: require("../models").User,
+              as: "user",
+              attributes: ["id", "username"],
+            },
+          ],
+        },
+        {
           model: GroupMessage,
           as: "ReplyMessage",
           required: false,

@@ -31,19 +31,13 @@ export default function ForwardModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-
+    <div className="absolute right-6 bottom-24 z-50">
       <div className="bg-white w-[420px] rounded-xl shadow-xl">
 
         <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="font-semibold text-lg">
-            Forward Message
-          </h2>
+          <h2 className="font-semibold text-lg">Forward Message</h2>
 
-          <button
-            onClick={onClose}
-            className="text-xl"
-          >
+          <button onClick={onClose} className="text-xl">
             ✕
           </button>
         </div>
@@ -60,24 +54,15 @@ export default function ForwardModal({
           <div className="max-h-80 overflow-y-auto">
 
             {filteredChats.map((chat) => {
-
-              const checked = selected.some(
-                (x) => x.id === chat.id
-              );
+              const checked = selected.some((x) => x.id === chat.id);
 
               return (
-
                 <div
                   key={chat.id}
                   onClick={() => toggleSelect(chat)}
                   className="flex items-center gap-3 p-3 hover:bg-gray-100 cursor-pointer"
                 >
-
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    readOnly
-                  />
+                  <input type="checkbox" checked={checked} readOnly />
 
                   <img
                     src={
@@ -91,21 +76,13 @@ export default function ForwardModal({
                   />
 
                   <div>
-
-                    <div className="font-medium">
-                      {chat.name}
-                    </div>
+                    <div className="font-medium">{chat.name}</div>
 
                     <div className="text-xs text-gray-500">
-                      {chat.isGroup
-                        ? "Group"
-                        : "Contact"}
+                      {chat.isGroup ? "Group" : "Contact"}
                     </div>
-
                   </div>
-
                 </div>
-
               );
             })}
           </div>
@@ -113,18 +90,14 @@ export default function ForwardModal({
         </div>
 
         <div className="border-t p-4 flex justify-end">
-
           <button
             onClick={() => onSend(selected)}
             className="bg-green-600 text-white px-6 py-2 rounded-lg"
           >
             Forward
           </button>
-
         </div>
-
       </div>
-
     </div>
   );
 }

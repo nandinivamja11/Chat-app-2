@@ -3,6 +3,8 @@ const Message = require("./Message");
 const Group = require("./Group");
 const GroupMember = require("./GroupMember");
 const GroupMessage = require("./GroupMessage");
+const MessageReaction = require("./MessageReaction");
+const GroupMessageReaction = require("./GroupMessageReaction");
 
 // associations here
 User.hasMany(Message, { foreignKey: "sender", as: "SentMessages" });
@@ -27,7 +29,32 @@ GroupMessage.belongsTo(GroupMessage, { foreignKey: "replyTo", as: "ReplyMessage"
 User.hasMany(GroupMessage, { foreignKey: "senderId" });
 GroupMessage.belongsTo(User, { foreignKey: "senderId", as: "Sender" });
 
-// Group.hasMany(GroupMember, { foreignKey: "groupId", as: "Members" });
-// GroupMember.belongsTo(User, { foreignKey: "userId",});
+// ================= MESSAGE REACTIONS =================
 
-module.exports = { User, Message, Group, GroupMember, GroupMessage };
+// One Message -> Many Reactions
+Message.hasMany(MessageReaction, { foreignKey: "messageId", as: "reactions", onDelete: "CASCADE" });
+
+// One Reaction -> One Message
+MessageReaction.belongsTo(Message, { foreignKey: "messageId", as: "message" });
+
+// One User -> Many Reactions
+User.hasMany(MessageReaction, { foreignKey: "userId", as: "messageReactions" });
+
+// One Reaction -> One User
+MessageReaction.belongsTo(User, { foreignKey: "userId", as: "user" });
+
+// ================= GROUP MESSAGE REACTIONS =================
+
+// One GroupMessage -> Many Reactions
+GroupMessage.hasMany(GroupMessageReaction, { foreignKey: "groupMessageId", as: "reactions", onDelete: "CASCADE" });
+
+// One Reaction -> One GroupMessage
+GroupMessageReaction.belongsTo(GroupMessage, { foreignKey: "groupMessageId", as: "groupMessage" });
+
+// One User -> Many Group Reactions
+User.hasMany(GroupMessageReaction, { foreignKey: "userId", as: "groupMessageReactions" });
+
+// One Group Reaction -> One User
+GroupMessageReaction.belongsTo(User, { foreignKey: "userId", as: "user" });
+
+module.exports = { User, Message, Group, GroupMember, GroupMessage, MessageReaction, GroupMessageReaction };

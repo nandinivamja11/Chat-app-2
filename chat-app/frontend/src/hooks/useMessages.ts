@@ -11,16 +11,21 @@ export default function useMessages({ selectedChat, setMessages, currentChat, se
     setMessages([]);
     try {
       let data;
-      if (currentChat?.isGroup) {
-        data = await getGroupMessages(currentChat.groupId);
-        await api.put(`/group/seen/${currentChat.groupId}`);
+      const selectedGroupId = selectedChat.startsWith("group-")
+        ? Number(selectedChat.replace("group-", ""))
+        : null;
+      const selectedUserId = selectedChat.startsWith("user-")
+        ? Number(selectedChat.replace("user-", ""))
+        : null;
+
+      if (selectedGroupId !== null) {
+        data = await getGroupMessages(selectedGroupId);
+        await api.put(`/group/seen/${selectedGroupId}`);
         loadUnread();
-      } else {
-        const selectedUserId = selectedChat.startsWith("user-")
-          ? Number(selectedChat.split("-")[1])
-          : null;
-        if (selectedUserId === null) return;
+      } else if (selectedUserId !== null) {
         data = await getConversation(selectedUserId);
+      } else {
+        return;
       }
 
       const formattedMessages = data.map((msg: any) => ({
@@ -32,6 +37,7 @@ export default function useMessages({ selectedChat, setMessages, currentChat, se
         type: msg.type,
         fileUrl: msg.fileUrl,
         fileName: msg.fileName,
+        reactions: (msg.reactions || []).map((r:any)=>({ emoji: r.emoji, user: r.user })),
         edited: msg.edited, 
         replyTo: msg.ReplyMessage
   ? {
@@ -71,9 +77,6 @@ export default function useMessages({ selectedChat, setMessages, currentChat, se
         );
       }
 
-      const selectedUserId = selectedChat.startsWith("user-")
-        ? Number(selectedChat.split("-")[1])
-        : null;
       if (selectedUserId !== null) {
         await markSeen(selectedUserId);
       }
